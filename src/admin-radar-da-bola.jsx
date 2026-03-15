@@ -632,7 +632,7 @@ function LoginScreen({ onLogin }) {
   const [pw,   setPw]   = useState("");
   const [err,  setErr]  = useState(false);
   const [show, setShow] = useState(false);
-  const handle = () => pw===PASS ? onLogin() : (setErr(true), setTimeout(()=>setErr(false),2000));
+  const handle = () => pw.trim()===PASS ? onLogin() : (setErr(true), setTimeout(()=>setErr(false),2000));
   return (
     <div style={{ minHeight:"100vh", background:C.bg, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Arial','Helvetica',sans-serif" }}>
       <div style={{ background:C.card, borderRadius:12, padding:"40px 36px", width:360, border:`1px solid ${C.border}`, boxShadow:"0 8px 40px rgba(0,0,0,0.1)" }}>
