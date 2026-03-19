@@ -64,7 +64,7 @@ function FeedCanvas({ news, size=1 }) {
   const imgRef = useRef(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const s = SPORTS[news.sport];
-  const W = 260*size, H = 260*size;
+  const W = 260*size, H = 325*size;
 
   const draw = useCallback(() => {
     const canvas = ref.current;
@@ -112,27 +112,33 @@ function FeedCanvas({ news, size=1 }) {
     ctx.fillText(s.emoji+" "+s.label,bx+bw/2,by+12);
     ctx.textAlign="left";
 
-    // Linha vermelha decorativa
-    ctx.fillStyle=B.red;
-    ctx.fillRect(14,58,28,2);
+    // Gradiente inferior para titulo
+    const grad=ctx.createLinearGradient(0,H*0.4,0,H);
+    grad.addColorStop(0,"rgba(0,0,0,0)");
+    grad.addColorStop(1,"rgba(0,0,0,0.92)");
+    ctx.fillStyle=grad; ctx.fillRect(0,H*0.4,W,H-H*0.4);
 
-    // Título
+    // Linha vermelha
+    ctx.fillStyle=B.red;
+    ctx.fillRect(14,H-162,28,3);
+
+    // Titulo (espaco do traco)
     ctx.fillStyle=B.white;
-    ctx.font="800 14px Arial";
-    ctx.shadowColor="rgba(0,0,0,0.8)"; ctx.shadowBlur=6;
-    wrapText(ctx,news.title,14,80,W-28,18,4);
+    ctx.font="800 15px Arial";
+    ctx.shadowColor="rgba(0,0,0,0.95)"; ctx.shadowBlur=8;
+    wrapText(ctx,news.title,14,H-146,W-28,20,4);
     ctx.shadowBlur=0;
 
-    // Rodapé vermelho
+    // Rodape vermelho (espaco do titulo)
     ctx.fillStyle=B.red;
-    ctx.fillRect(0,H-32,W,32);
+    ctx.fillRect(0,H-40,W,40);
     ctx.fillStyle=B.white;
     ctx.font="700 9px Arial";
-    ctx.fillText("🔗 Link na bio",14,H-12);
+    ctx.fillText("🔗 Link na bio",14,H-14);
     ctx.fillStyle="rgba(255,255,255,0.6)";
     ctx.font="400 8px Arial";
     ctx.textAlign="right";
-    ctx.fillText(timeAgo(news.minsAgo),W-10,H-12);
+    ctx.fillText(timeAgo(news.minsAgo),W-10,H-14);
     ctx.textAlign="left";
   }, [news, imgLoaded, W, H, s]);
 
@@ -183,69 +189,36 @@ function StoryCanvas({ news, size=1 }) {
       ctx.fillStyle=tint; ctx.fillRect(0,0,W,H);
     }
 
-    // Header vermelho
+    // Gradiente inferior forte
+    const gradS=ctx.createLinearGradient(0,H*0.35,0,H);
+    gradS.addColorStop(0,"rgba(0,0,0,0)");
+    gradS.addColorStop(1,"rgba(0,0,0,0.94)");
+    ctx.fillStyle=gradS; ctx.fillRect(0,H*0.35,W,H-H*0.35);
+
+    // CATEGORIA (badge vermelho)
     ctx.fillStyle=B.red;
-    ctx.fillRect(0,0,W,56);
-
-    // Logo
+    const bw=84,bh=20,bx=14,by=H-215;
+    pill(ctx,bx,by,bw,bh,4); ctx.fill();
     ctx.fillStyle=B.white;
-    ctx.font="800 13px 'Arial Black',Arial";
-    ctx.fillText("RADAR DA BOLA",14,24);
+    ctx.font="800 9px Arial";
+    ctx.fillText(s.emoji+" "+s.label,bx+10,by+13);
 
-    // Tagline
-    ctx.fillStyle="rgba(255,255,255,0.6)";
-    ctx.font="600 8px Arial";
-    ctx.letterSpacing="1px";
-    ctx.fillText("ESPORTES EM TEMPO REAL",14,38);
-    ctx.letterSpacing="0px";
-
-    // Badge
-    ctx.fillStyle="rgba(0,0,0,0.25)";
-    const bw=80,bh=18,bx=W-bw-10,by=19;
-    pill(ctx,bx,by,bw,bh,3); ctx.fill();
-    ctx.fillStyle=B.white;
-    ctx.font="800 8px Arial";
-    ctx.textAlign="center";
-    ctx.fillText(s.emoji+" "+s.label,bx+bw/2,by+12);
-    ctx.textAlign="left";
-
-    // Linha vermelha
+    // TRACO vermelho (logo abaixo da categoria)
     ctx.fillStyle=B.red;
-    ctx.fillRect(14,72,32,3);
+    ctx.fillRect(14,H-185,32,3);
 
-    // Título
+    // TITULO (espaco do traco)
     ctx.fillStyle=B.white;
-    ctx.font="800 17px Arial";
-    ctx.shadowColor="rgba(0,0,0,0.8)"; ctx.shadowBlur=8;
-    wrapText(ctx,news.title,14,98,W-28,22,5);
+    ctx.font="800 16px Arial";
+    ctx.shadowColor="rgba(0,0,0,0.95)"; ctx.shadowBlur=10;
+    wrapText(ctx,news.title,14,H-168,W-28,22,4);
     ctx.shadowBlur=0;
 
-    // Separador
-    ctx.fillStyle="rgba(255,255,255,0.12)";
-    ctx.fillRect(14,H-80,W-28,1);
-
-    // Resumo
+    // FOOTER simples
     ctx.fillStyle="rgba(255,255,255,0.55)";
-    ctx.font="400 11px Arial";
-    wrapText(ctx,news.summary,14,H-62,W-28,15,2);
-
-    // Rodapé vermelho
-    ctx.fillStyle=B.red;
-    ctx.fillRect(0,H-34,W,34);
-    ctx.fillStyle=B.white;
     ctx.font="700 9px Arial";
-    ctx.fillText("🔗 Link na bio",14,H-14);
-    ctx.fillStyle="rgba(255,255,255,0.6)";
-    ctx.font="400 8px Arial";
-    ctx.textAlign="right";
-    ctx.fillText(timeAgo(news.minsAgo),W-10,H-14);
-    ctx.textAlign="left";
-
-    // Swipe up
-    ctx.fillStyle="rgba(255,255,255,0.3)";
-    ctx.font="9px Arial";
     ctx.textAlign="center";
-    ctx.fillText("▲  ver matéria completa  ▲",W/2,H-46);
+    ctx.fillText("Leia a materia completa · Link na bio",W/2,H-16);
     ctx.textAlign="left";
   }, [news, imgLoaded, W, H, s]);
 
@@ -376,7 +349,7 @@ export default function IGManager() {
                 <div style={{ height:5,background:"rgba(255,255,255,0.07)",borderRadius:3,overflow:"hidden" }}>
                   <div style={{ height:"100%",width:`${(stats.posted/stats.total)*100}%`,background:`linear-gradient(90deg,${B.redDeep},${B.red})`,borderRadius:3,transition:"width 0.6s" }} />
                 </div>
-                <div style={{ marginTop:8,fontSize:11,color:"#444" }}>Cada notícia gera: <span style={{ color:"#60a5fa" }}>1× Feed 1:1</span> + <span style={{ color:"#c084fc" }}>1× Stories 9:16</span> · Layout Clássico</div>
+                <div style={{ marginTop:8,fontSize:11,color:"#444" }}>Cada notícia gera: <span style={{ color:"#60a5fa" }}>1× Feed 4:5</span> + <span style={{ color:"#c084fc" }}>1× Stories 9:16</span> · Layout Clássico</div>
               </div>
 
               {/* Lista */}
@@ -484,7 +457,7 @@ export default function IGManager() {
                 <div>
                   <div style={{ display:"flex",gap:40,alignItems:"flex-start",marginBottom:28 }}>
                     <div>
-                      <div style={{ fontSize:10,color:"#444",letterSpacing:1,fontWeight:700,marginBottom:12 }}>FEED · 1:1</div>
+                      <div style={{ fontSize:10,color:"#444",letterSpacing:1,fontWeight:700,marginBottom:12 }}>FEED · 4:5</div>
                       <FeedCanvas news={previewNews} />
                     </div>
                     <div>
@@ -576,7 +549,7 @@ export default function IGManager() {
 
                 <div style={{ background:"#111",borderRadius:10,padding:24,border:`1px solid ${B.border}` }}>
                   <div style={{ fontWeight:700,fontSize:13,color:B.white,marginBottom:14 }}>Configurações ativas</div>
-                  {[["📐","Formatos","Feed (1:1) + Stories (9:16)","#60a5fa"],["🎨","Layout","Layout 1 — Clássico Jornalístico",B.red],["⚡","Postagem","Assim que a notícia for gerada","#00c44f"],["🔄","Auto-update","A cada 2 horas automaticamente","#f5c518"]].map(([icon,label,val,color])=>(
+                  {[["📐","Formatos","Feed (4:5) + Stories (9:16)","#60a5fa"],["🎨","Layout","Layout 1 — Clássico Jornalístico",B.red],["⚡","Postagem","Assim que a notícia for gerada","#00c44f"],["🔄","Auto-update","A cada 2 horas automaticamente","#f5c518"]].map(([icon,label,val,color])=>(
                     <div key={label} style={{ display:"flex",gap:12,padding:"10px 0",borderBottom:`1px solid rgba(255,255,255,0.04)` }}>
                       <span style={{ fontSize:18,flexShrink:0 }}>{icon}</span>
                       <div>
