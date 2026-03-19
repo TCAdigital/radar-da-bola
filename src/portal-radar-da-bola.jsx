@@ -16,80 +16,51 @@ const NEWS = [
   { id:"f1", sport:"futebol",  minsAgo:40,  readTime:"4 min",
     title:"Palmeiras e Flamengo são campeões estaduais no maior fim de semana do futebol brasileiro",
     summary:"Palmeiras levou o Paulistão sobre o Novorizontino e Flamengo bateu o Fluminense nos pênaltis.",
-    content:"O fim de semana de 8 de março ficará marcado no futebol brasileiro. Palmeiras e Flamengo foram dois dos 13 clubes que levantaram taças estaduais.
-
-O Verdão conquistou o Paulistão ao vencer o Novorizontino no Allianz Parque. Vitor Roque foi o grande nome da decisão com dois gols.
-
-No Rio, a final do Carioca entre Fluminense e Flamengo foi até os pênaltis. O Mengão venceu com Leonardo Jardim no comando.",
+    content:"O fim de semana de 8 de março ficará marcado no futebol brasileiro. Palmeiras e Flamengo foram dois dos 13 clubes que levantaram taças estaduais.\n\nO Verdão conquistou o Paulistão ao vencer o Novorizontino no Allianz Parque. Vitor Roque foi o grande nome da decisão com dois gols.\n\nNo Rio, a final do Carioca entre Fluminense e Flamengo foi até os pênaltis. O Mengão venceu com Leonardo Jardim no comando.",
     img:"https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=900&q=80" },
   { id:"f2", sport:"futebol",  minsAgo:95,  readTime:"3 min",
     title:"Leonardo Jardim estreia no Flamengo com título carioca nos pênaltis contra o Fluminense",
     summary:"Técnico português assumiu o Mengão e na primeira decisão já levantou a taça.",
-    content:"Leonardo Jardim não poderia ter pedido estreia melhor no comando do Flamengo.
-
-A final no Maracanã terminou empatada no tempo normal. Nos pênaltis, o Flamengo foi mais eficiente.
-
-Com o estadual conquistado, o foco se volta para o Brasileirão e Copa Libertadores.",
+    content:"Leonardo Jardim não poderia ter pedido estreia melhor no comando do Flamengo.\n\nA final no Maracanã terminou empatada no tempo normal. Nos pênaltis, o Flamengo foi mais eficiente.\n\nCom o estadual conquistado, o foco se volta para o Brasileirão e Copa Libertadores.",
     img:"https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=900&q=80" },
   { id:"f3", sport:"futebol",  minsAgo:180, readTime:"5 min",
     title:"Copa do Mundo 2026: Brasil inicia contagem regressiva para o torneio que volta às Américas",
     summary:"Ingressos esgotam em tempo recorde enquanto Seleção finaliza preparação.",
-    content:"A contagem regressiva para a Copa do Mundo 2026 entra em fase decisiva.
-
-Os jogos da Seleção estão previstos para os EUA. A demanda por ingressos foi enorme — esgotados em horas.
-
-Vinicius Jr., Rodrygo e Endrick são os destaques ofensivos da equipe de Carlo Ancelotti.",
+    content:"A contagem regressiva para a Copa do Mundo 2026 entra em fase decisiva.\n\nOs jogos da Seleção estão previstos para os EUA. A demanda por ingressos foi enorme — esgotados em horas.\n\nVinicius Jr., Rodrygo e Endrick são os destaques ofensivos da equipe de Carlo Ancelotti.",
     img:"https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=900&q=80" },
   { id:"r1", sport:"formula1", minsAgo:28,  readTime:"4 min",
     title:"Russell vence GP da Austrália e Mercedes domina abertura da nova era da F1 2026",
     summary:"Dobradinha da Mercedes em Melbourne. Antonelli foi segundo e Leclerc ficou com o terceiro.",
-    content:"A Fórmula 1 iniciou sua nova era regulamentar em Melbourne com Mercedes dominando.
-
-George Russell venceu de ponta a ponta. Kimi Antonelli completou a dobradinha em apenas sua segunda corrida.
-
-Gabriel Bortoleto, estreando pela Audi, completou a corrida dentro da zona de pontos.",
+    content:"A Fórmula 1 iniciou sua nova era regulamentar em Melbourne com Mercedes dominando.\n\nGeorge Russell venceu de ponta a ponta. Kimi Antonelli completou a dobradinha em apenas sua segunda corrida.\n\nGabriel Bortoleto, estreando pela Audi, completou a corrida dentro da zona de pontos.",
     img:"https://images.unsplash.com/photo-1518364538800-6bae3c2ea0f2?w=900&q=80" },
   { id:"r2", sport:"formula1", minsAgo:120, readTime:"3 min",
     title:"Bortoleto estreia na F1 e celebra primeiro ponto na carreira: 'Mais do que esperava'",
     summary:"O brasileiro da Audi cruzou a linha dentro do top-10 em Melbourne.",
-    content:"Gabriel Bortoleto completou o GP da Austrália com frieza e inteligência.
-
-'Marcar ponto na estreia é mais do que eu esperava', disse o piloto.",
+    content:"Gabriel Bortoleto completou o GP da Austrália com frieza e inteligência.\n\n'Marcar ponto na estreia é mais do que eu esperava', disse o piloto.",
     img:"https://images.unsplash.com/photo-1541348263662-e068662d82af?w=900&q=80" },
   { id:"t1", sport:"tenis",    minsAgo:15,  readTime:"3 min",
     title:"HOJE ÀS 22H: João Fonseca enfrenta Sinner pelas oitavas de final de Indian Wells",
     summary:"O prodígio carioca de 19 anos faz história ao chegar às oitavas pela primeira vez.",
-    content:"João Fonseca chegou às oitavas de Indian Wells pela primeira vez na carreira.
-
-Fonseca atropelou Tommy Paul por 6/2 e 6/3 em 82 minutos na rodada anterior.
-
-A partida começa às 22h de Brasília pela ESPN 2 e Disney+.",
+    content:"João Fonseca chegou às oitavas de Indian Wells pela primeira vez na carreira.\n\nFonseca atropelou Tommy Paul por 6/2 e 6/3 em 82 minutos na rodada anterior.\n\nA partida começa às 22h de Brasília pela ESPN 2 e Disney+.",
     img:"https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=900&q=80" },
   { id:"t2", sport:"tenis",    minsAgo:72,  readTime:"3 min",
     title:"Fonseca atropela Tommy Paul com 6/2 e 6/3 e faz história em Indian Wells",
     summary:"Em 82 minutos dominantes, brasileiro se torna o 4º mais jovem em oitavas de Masters 1000.",
-    content:"João Fonseca deixou Tommy Paul sem chances — 6/2 e 6/3.
-
-Fonseca se torna o quarto tenista mais jovem a atingir as oitavas de um Masters 1000 na Era Aberta.",
+    content:"João Fonseca deixou Tommy Paul sem chances — 6/2 e 6/3.\n\nFonseca se torna o quarto tenista mais jovem a atingir as oitavas de um Masters 1000 na Era Aberta.",
     img:"https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=900&q=80" },
   { id:"b1", sport:"basquete", minsAgo:18,  readTime:"4 min",
     title:"SGA iguala Wilt Chamberlain com 126 jogos consecutivos acima de 20 pontos na NBA",
     summary:"Astro do Thunder empatou um dos recordes mais míticos do basquete com game-winner.",
-    content:"Shai Gilgeous-Alexander igualou Wilt Chamberlain com 126 jogos consecutivos acima de 20 pontos.
-
-SGA fechou o jogo com um game-winner nos instantes finais. 'Quero ganhar. O recorde é só um reflexo disso.'",
+    content:"Shai Gilgeous-Alexander igualou Wilt Chamberlain com 126 jogos consecutivos acima de 20 pontos.\n\nSGA fechou o jogo com um game-winner nos instantes finais. 'Quero ganhar. O recorde é só um reflexo disso.'",
     img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900&q=80" },
   { id:"b2", sport:"basquete", minsAgo:90,  readTime:"3 min",
     title:"Thunder é o primeiro time a 50 vitórias na NBA 2025/26 e consolida favoritismo ao título",
     summary:"Com campanha de 50-15, Oklahoma City manda recado: o caminho para o título passa por aqui.",
-    content:"O Oklahoma City Thunder se tornou o primeiro time a atingir 50 vitórias na temporada.
-
-SGA, Chet Holmgren e Jalen Williams formam um dos trios mais temidos da liga.",
+    content:"O Oklahoma City Thunder se tornou o primeiro time a atingir 50 vitórias na temporada.\n\nSGA, Chet Holmgren e Jalen Williams formam um dos trios mais temidos da liga.",
     img:"https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=900&q=80" },
 ];
 
 // ── JOGOS DE HOJE — dados reais buscados via API ─────────────────────────────
-// Estrutura dos eventos para a aba "Jogos de Hoje"
 const LIVE_SECTIONS = [
   {
     id:"brasileirao", label:"Brasileirão Série A", emoji:"🇧🇷", color:"#009c3b",
@@ -262,18 +233,11 @@ function GameCard({ game, color }) {
   const isLive = game.status === "live";
   return (
     <div style={{ background:"#fff", borderRadius:8, padding:"12px 16px", border:"1px solid #e8e8e8", borderLeft:`3px solid ${isLive?"#e8002d":color}` }}>
-      {/* Linha superior: competição extra (opcional) */}
       {game.extra && (
         <div style={{ fontSize:10, color:"#bbb", marginBottom:6 }}>{game.extra}</div>
       )}
-
-      {/* Layout principal: 3 colunas fixas — casa | centro | visitante */}
       <div style={{ display:"grid", gridTemplateColumns:"1fr auto 1fr", alignItems:"center", gap:8 }}>
-
-        {/* Time da casa */}
         <span style={{ fontSize:13, fontWeight:700, color:"#111", lineHeight:1.3 }}>{game.home}</span>
-
-        {/* Centro: horário ou placar */}
         <div style={{ textAlign:"center", minWidth:80, flexShrink:0 }}>
           {isLive ? (
             <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
@@ -294,12 +258,8 @@ function GameCard({ game, color }) {
             </div>
           )}
         </div>
-
-        {/* Time visitante */}
         <span style={{ fontSize:13, fontWeight:700, color:"#111", textAlign:"right", lineHeight:1.3 }}>{game.away}</span>
       </div>
-
-      {/* Barra de probabilidades */}
       {game.winProb && (
         <div style={{ marginTop:10 }}>
           <ProbBar home={game.winProb.home} away={game.winProb.away} draw={game.winProb.draw} color={color} />
@@ -315,7 +275,6 @@ function TodayTab() {
 
   return (
     <div>
-      {/* Filtro por liga */}
       <div style={{ background:"#fff", borderRadius:8, padding:"12px 16px", border:"1px solid #e0e0e0", marginBottom:16, display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
         <span style={{ fontSize:11, color:"#aaa", fontWeight:600, marginRight:4 }}>FILTRAR:</span>
         {[["all","Todos"], ...LIVE_SECTIONS.map(s=>[s.id, s.label])].map(([id, label])=>(
@@ -349,8 +308,6 @@ function TodayTab() {
             </div>
           ))}
         </div>
-
-        {/* Mini sidebar */}
         <aside>
           <div style={{ background:"#fff", borderRadius:8, padding:"16px", border:"1px solid #e0e0e0", marginBottom:16 }}>
             <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
@@ -406,9 +363,7 @@ function ArticlePage({ news, onBack, allNews }) {
           {news.summary}
         </div>
         <div style={{ background:"#fff", borderRadius:8, padding:"24px", border:"1px solid #e0e0e0" }}>
-          {news.content.split("
-
-").map((p,i)=>(
+          {news.content.split("\n\n").map((p,i)=>(
             <div key={i}>
               <p style={{ fontSize:16, lineHeight:1.85, color:"#222", margin:"0 0 18px" }}>{p}</p>
               {i===1 && <AdSlot h={90} label="Publicidade In-Content" />}
@@ -449,8 +404,6 @@ function HomePage({ onArticle }) {
 
   return (
     <div style={{ background:"#f5f5f5", minHeight:"100vh", fontFamily:"'Arial','Helvetica',sans-serif" }}>
-
-      {/* ── HEADER VERMELHO ── */}
       <header style={{ background:BRAND.red, position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 20px" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:56 }}>
@@ -465,8 +418,6 @@ function HomePage({ onArticle }) {
               </span>
             </div>
           </div>
-
-          {/* Nav */}
           <nav style={{ display:"flex", overflowX:"auto", borderTop:"1px solid rgba(255,255,255,0.2)" }}>
             {tabs.map(t=>(
               <button key={t} onClick={()=>setTab(t)} style={{
@@ -483,10 +434,7 @@ function HomePage({ onArticle }) {
           </nav>
         </div>
       </header>
-
       <div style={{ maxWidth:1100, margin:"0 auto", padding:"20px" }}>
-
-        {/* ── ABA JOGOS DE HOJE ── */}
         {tab==="jogos" ? (
           <div>
             <div style={{ marginBottom:16 }}>
@@ -554,14 +502,12 @@ function HomePage({ onArticle }) {
           </>
         )}
       </div>
-
       <footer style={{ background:BRAND.black, borderTop:`3px solid ${BRAND.red}`, padding:"24px 20px", marginTop:40, textAlign:"center" }}>
         <div style={{ fontFamily:"'Arial Black','Arial',sans-serif", fontWeight:900, fontSize:18, color:"#fff", letterSpacing:-0.5, marginBottom:6 }}>
           RADAR DA BOLA
         </div>
         <p style={{ color:"rgba(255,255,255,0.25)", fontSize:12, margin:0 }}>© 2026 radardabola.com.br · Esportes em tempo real</p>
       </footer>
-
       <style>{`@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}`}</style>
     </div>
   );
