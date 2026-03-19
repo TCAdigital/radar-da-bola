@@ -277,7 +277,7 @@ function HomePage({ onArticle }) {
 
   return (
     <div style={{ background:"#f5f5f5", minHeight:"100vh", fontFamily:"'Arial','Helvetica',sans-serif" }}>
-      <header style={{ background:BRAND.black, borderBottom:"3px solid "+BRAND.red, position:"sticky", top:0, zIndex:100 }}>
+      <header style={{ background:BRAND.red, position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 20px" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:56 }}>
             <div style={{ fontFamily:"'Arial Black','Arial',sans-serif", fontWeight:900, fontSize:20, color:"#fff", letterSpacing:-0.5 }}>
@@ -291,10 +291,10 @@ function HomePage({ onArticle }) {
               </span>
             </div>
           </div>
-          <nav style={{ display:"flex", overflowX:"auto", borderTop:"1px solid rgba(255,255,255,0.07)" }}>
+          <nav style={{ display:"flex", overflowX:"auto", borderTop:"1px solid rgba(255,255,255,0.2)" }}>
             {tabs.map(function(t){
               return (
-                <button key={t} onClick={function(){ setTab(t); }} style={{ background:"none", border:"none", borderBottom:tab===t?"3px solid "+navColor[t]:"3px solid transparent", color:tab===t?"#fff":"rgba(255,255,255,0.4)", padding:"10px 16px", fontSize:13, fontWeight:tab===t?700:400, cursor:"pointer", whiteSpace:"nowrap", transition:"all 0.15s" }}>
+                <button key={t} onClick={function(){ setTab(t); }} style={{ background:"none", border:"none", borderBottom:tab===t?"3px solid #fff":"3px solid transparent", color:tab===t?"#fff":"rgba(255,255,255,0.65)", padding:"10px 16px", fontSize:13, fontWeight:tab===t?700:400, cursor:"pointer", whiteSpace:"nowrap", transition:"all 0.15s" }}>
                   {tabLabel[t]}
                 </button>
               );
