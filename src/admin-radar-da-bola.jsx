@@ -1,5 +1,6 @@
 /* eslint-disable */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { supabase } from "./supabaseClient";
 
 const PASS = "radar2026";
 
@@ -396,8 +397,7 @@ function GamesTab({ games, setGames, showToast }) {
   };
 
   const parseCSV = (text) => {
-    const lines = text.trim().split("
-").filter(l=>l.trim());
+    const lines = text.trim().split(/\r?\n/).filter(l=>l.trim());
     if(lines.length<2) return { error:"CSV precisa de cabeçalho + ao menos 1 linha." };
     const headers = lines[0].split(",").map(h=>h.trim().toLowerCase());
     const missing = ["league","home","away","time","status"].filter(r=>!headers.includes(r));
@@ -548,11 +548,43 @@ function GamesTab({ games, setGames, showToast }) {
 // ── PAINEL PRINCIPAL ──────────────────────────────────────────────────────────
 function AdminPanel({ onLogout }) {
   const [tab,   setTab]   = useState("noticias");
-  const [news,  setNews]  = useState(INIT_NEWS);
-  const [games, setGames] = useState(INIT_GAMES);
+  const [news,  setNews]  = useState([]);
+  const [games, setGames] = useState([]);
   const [toast, setToast] = useState(null);
 
   const showToast = (msg, ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
+
+  // Carregar dados do Supabase ao iniciar
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    // Notícias
+    const { data: nData } = await supabase.from('news').select('*').order('created_at', { ascending: false });
+    if (nData) {
+      // Calcular minutos atrás baseado no created_at
+      const mappedNews = nData.map(n => ({
+        ...n,
+        minsAgo: n.created_at ? Math.floor((new Date() - new Date(n.created_at)) / 60000) : 0
+      }));
+      setNews(mappedNews);
+    }
+    // Jogos
+    const { data: gData } = await supabase.from('games').select('*');
+    if (gData) setGames(gData);
+  };
+
+  // Wrappers para atualizar o estado local E o banco de dados
+  const handleSetNews = async (action) => {
+    // action pode ser um novo array ou uma função callback
+    const newNewsList = typeof action === 'function' ? action(news) : action;
+    
+    // Identificar mudanças é complexo aqui, então vamos simplificar:
+    // Para salvar edições/criações, usamos upsert direto nos componentes filhos (NewsTab/GamesTab) seria o ideal,
+    // mas para manter a estrutura atual, vamos passar uma função interceptadora.
+    setNews(newNewsList);
+  };
 
   const sn = { total:news.length, posted:news.filter(n=>n.igStatus==="posted").length, pending:news.filter(n=>n.igStatus==="pending").length, blocked:news.filter(n=>n.igStatus==="blocked").length };
   const sg = { total:games.length, live:games.filter(g=>g.status==="live").length, finished:games.filter(g=>g.status==="finished").length, ligas:[...new Set(games.map(g=>g.leagueId))].length };
@@ -615,8 +647,43 @@ function AdminPanel({ onLogout }) {
         </div>
 
         {tab==="noticias"
-          ? <NewsTab  news={news}   setNews={setNews}   showToast={showToast} />
-          : <GamesTab games={games} setGames={setGames} showToast={showToast} />
+          ? <NewsTab
+              news={news}
+              setNews={(val) => {
+                // Intercepta atualização local para salvar no banco
+                setNews(prev => {
+                  const newList = typeof val === 'function' ? val(prev) : val;
+                  // Encontra o item alterado ou adicionado
+                  const changed = newList.find(n => !prev.includes(n)) || newList.find(n => prev.find(old => old.id === n.id && old !== n));
+                  // Se foi deletado
+                  const deleted = prev.find(n => !newList.includes(n));
+
+                  if (deleted) supabase.from('news').delete().eq('id', deleted.id).then();
+                  if (changed) {
+                    const { minsAgo, ...dbRow } = changed; // Remove minsAgo virtual antes de salvar
+                    supabase.from('news').upsert(dbRow).then();
+                  }
+                  return newList;
+                });
+              }}
+              showToast={showToast}
+            />
+          : <GamesTab
+              games={games}
+              setGames={(val) => {
+                setGames(prev => {
+                  const newList = typeof val === 'function' ? val(prev) : val;
+                  const changed = newList.find(g => !prev.includes(g)) || newList.find(g => prev.find(old => old.id === g.id && old !== g));
+                  const deleted = prev.find(g => !newList.includes(g));
+
+                  if (deleted) supabase.from('games').delete().eq('id', deleted.id).then();
+                  if (changed) supabase.from('games').upsert(changed).then();
+                  
+                  return newList;
+                });
+              }}
+              showToast={showToast}
+            />
         }
       </div>
 

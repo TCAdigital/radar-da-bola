@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient";
 import AdminApp from "./admin-radar-da-bola";
 
 // ── PALETA ─────────────────────────────────────────────────────────────────
@@ -270,17 +271,40 @@ function GameCard({ game, color }) {
   );
 }
 
-function TodayTab() {
+function TodayTab({ games }) {
   const [filter, setFilter] = useState("all");
-  const sections = filter==="all" ? LIVE_SECTIONS : LIVE_SECTIONS.filter(s=>s.id===filter);
+  
+  // Agrupar jogos por liga
+  const sectionsMap = {};
+  games.forEach(g => {
+    if (!sectionsMap[g.leagueId]) {
+      sectionsMap[g.leagueId] = {
+        id: g.leagueId,
+        label: g.league,
+        emoji: g.leagueEmoji,
+        color: g.leagueColor,
+        games: []
+      };
+    }
+    // Adaptar estrutura do BD para o formato esperado pelo GameCard (winProb)
+    const adaptedGame = {
+      ...g,
+      winProb: (g.probHome || g.probAway) ? { home: g.probHome, away: g.probAway, draw: g.probDraw } : undefined,
+      score: (g.scoreHome !== null && g.scoreHome !== undefined) ? { home: g.scoreHome, away: g.scoreAway } : undefined
+    };
+    sectionsMap[g.leagueId].games.push(adaptedGame);
+  });
+  
+  const allSections = Object.values(sectionsMap);
+  const sections = filter==="all" ? allSections : allSections.filter(s=>s.id===filter);
 
   return (
     <div>
       <div style={{ background:"#fff", borderRadius:8, padding:"12px 16px", border:"1px solid #e0e0e0", marginBottom:16, display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
         <span style={{ fontSize:11, color:"#aaa", fontWeight:600, marginRight:4 }}>FILTRAR:</span>
-        {[["all","Todos"], ...LIVE_SECTIONS.map(s=>[s.id, s.label])].map(([id, label])=>(
+        {[["all","Todos"], ...allSections.map(s=>[s.id, s.label])].map(([id, label])=>(
           <button key={id} onClick={()=>setFilter(id)} style={{ background:filter===id?BRAND.red:"#f5f5f5", color:filter===id?"#fff":"#555", border:"none", borderRadius:20, padding:"5px 12px", fontSize:12, fontWeight:600, cursor:"pointer", transition:"all 0.15s" }}>
-            {id==="all"?"🏟️ Todos":LIVE_SECTIONS.find(s=>s.id===id)?.emoji+" "+label}
+            {id==="all"?"🏟️ Todos":allSections.find(s=>s.id===id)?.emoji+" "+label}
           </button>
         ))}
         <div style={{ marginLeft:"auto", fontSize:11, color:"#aaa" }}>
@@ -315,7 +339,7 @@ function TodayTab() {
               <div style={{ width:4, height:16, background:BRAND.red, borderRadius:2 }} />
               <span style={{ fontWeight:800, fontSize:13, color:"#111" }}>Resumo de hoje</span>
             </div>
-            {LIVE_SECTIONS.map(s=>(
+            {allSections.map(s=>(
               <div key={s.id} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:"1px solid #f5f5f5", alignItems:"center" }}>
                 <span style={{ fontSize:13, color:"#444" }}>{s.emoji} {s.label}</span>
                 <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -393,12 +417,12 @@ function ArticlePage({ news, onBack, allNews }) {
 }
 
 // ── HOME ──────────────────────────────────────────────────────────────────────
-function HomePage({ onArticle }) {
+function HomePage({ onArticle, news, games }) {
   const [tab, setTab] = useState("inicio");
   const tabs = ["inicio","futebol","formula1","tenis","basquete","jogos"];
   const tabLabel = { inicio:"Início", futebol:"Futebol", formula1:"Fórmula 1", tenis:"Tênis", basquete:"Basquete", jogos:"🏟️ Jogos de Hoje" };
 
-  const filtered = tab==="inicio" ? NEWS : (tab==="jogos" ? [] : NEWS.filter(n=>n.sport===tab));
+  const filtered = tab==="inicio" ? news : (tab==="jogos" ? [] : news.filter(n=>n.sport===tab));
   const hero   = filtered[0];
   const medium = filtered.slice(1,4);
   const rest   = filtered.slice(4);
@@ -442,7 +466,7 @@ function HomePage({ onArticle }) {
               <h2 style={{ fontSize:20, fontWeight:800, color:"#111", margin:"0 0 4px" }}>🏟️ Jogos de Hoje</h2>
               <p style={{ fontSize:13, color:"#888", margin:0 }}>Terça-feira, 11 de março de 2026 · Dados em tempo real</p>
             </div>
-            <TodayTab />
+            <TodayTab games={games} />
           </div>
         ) : (
           <>
@@ -470,7 +494,7 @@ function HomePage({ onArticle }) {
                     <span style={{ fontWeight:800, fontSize:13, color:"#111" }}>Modalidades</span>
                   </div>
                   {Object.entries(META).map(([k,m])=>{
-                    const n=NEWS.filter(x=>x.sport===k).length;
+                    const n=news.filter(x=>x.sport===k).length;
                     return (
                       <div key={k} onClick={()=>setTab(k)} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"9px 0", borderBottom:"1px solid #f5f5f5", cursor:"pointer" }}>
                         <span style={{ fontSize:13, color:"#333" }}>{m.emoji} {m.label}</span>
@@ -484,7 +508,7 @@ function HomePage({ onArticle }) {
                     <div style={{ width:4, height:16, background:BRAND.red, borderRadius:2 }} />
                     <span style={{ fontWeight:800, fontSize:13, color:"#111" }}>Em Alta 🔥</span>
                   </div>
-                  {NEWS.slice(0,4).map((n,i)=>(
+                  {news.slice(0,4).map((n,i)=>(
                     <div key={n.id} onClick={()=>onArticle(n)} style={{ display:"flex", gap:10, cursor:"pointer", padding:"9px 0", borderBottom:"1px solid #f5f5f5" }}>
                       <span style={{ fontSize:22, fontWeight:900, color:"#e8e8e8", lineHeight:1, flexShrink:0, width:24, textAlign:"center" }}>{i+1}</span>
                       <div>
@@ -515,8 +539,35 @@ function HomePage({ onArticle }) {
 }
 
 export default function App() {
+  if (typeof window !== "undefined" && (window.location.pathname === "/admin" || window.location.pathname === "/admin/")) {
+    return <AdminApp />;
+  }
+
+  const [news, setNews] = useState([]);
+  const [games, setGames] = useState([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    // Notícias
+    const { data: nData } = await supabase.from('news').select('*').order('created_at', { ascending: false });
+    if (nData) {
+      const mappedNews = nData.map(n => ({
+        ...n,
+        minsAgo: n.created_at ? Math.floor((new Date() - new Date(n.created_at)) / 60000) : 0,
+        readTime: "3 min" // Padrão
+      }));
+      setNews(mappedNews);
+    }
+    // Jogos
+    const { data: gData } = await supabase.from('games').select('*');
+    if (gData) setGames(gData);
+  };
+
   const [article, setArticle] = useState(null);
   return article
-    ? <ArticlePage news={article} onBack={()=>setArticle(null)} allNews={NEWS} />
-    : <HomePage onArticle={setArticle} />;
+    ? <ArticlePage news={article} onBack={()=>setArticle(null)} allNews={news} />
+    : <HomePage onArticle={setArticle} news={news} games={games} />;
 }
