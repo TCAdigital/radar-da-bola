@@ -76,7 +76,7 @@ Crie 2 noticias esportivas recentes e realistas sobre: ${tema}
 Responda APENAS com JSON valido neste formato, sem markdown, sem backticks, sem texto extra:
 [{"titulo":"titulo aqui","subtitulo":"resumo de 1-2 frases","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"},{"titulo":"titulo 2","subtitulo":"resumo","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"}]`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
   
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
