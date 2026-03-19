@@ -8,10 +8,10 @@ const B = {
 };
 
 const SPORTS = {
-  futebol:  { color:"#e8002d", label:"FUTEBOL",   emoji:"⚽" },
-  formula1: { color:"#ff6b00", label:"FÓRMULA 1", emoji:"🏎️" },
+  futebol:  { color:"#009c3b", label:"FUTEBOL",   emoji:"⚽" },
+  formula1: { color:"#e10600", label:"FÓRMULA 1", emoji:"🏎️" },
   tenis:    { color:"#c8860a", label:"TÊNIS",     emoji:"🎾" },
-  basquete: { color:"#e8002d", label:"BASQUETE",  emoji:"🏀" },
+  basquete: { color:"#e65c00", label:"BASQUETE",  emoji:"🏀" },
 };
 
 const NEWS = [
@@ -93,8 +93,8 @@ function FeedCanvas({ news, size=1 }) {
       ctx.fillStyle=tint; ctx.fillRect(0,0,W,H);
     }
 
-    // Header vermelho
-    ctx.fillStyle=B.red;
+    // Header cor do esporte
+    ctx.fillStyle=s.color;
     ctx.fillRect(0,0,W,44);
 
     // Logo no header
@@ -118,8 +118,8 @@ function FeedCanvas({ news, size=1 }) {
     grad.addColorStop(1,"rgba(0,0,0,0.92)");
     ctx.fillStyle=grad; ctx.fillRect(0,H*0.4,W,H-H*0.4);
 
-    // Linha vermelha
-    ctx.fillStyle=B.red;
+    // Linha cor do esporte
+    ctx.fillStyle=s.color;
     ctx.fillRect(14,H-162,28,3);
 
     // Titulo (espaco do traco)
@@ -129,8 +129,8 @@ function FeedCanvas({ news, size=1 }) {
     wrapText(ctx,news.title,14,H-146,W-28,20,4);
     ctx.shadowBlur=0;
 
-    // Rodape vermelho (espaco do titulo)
-    ctx.fillStyle=B.red;
+    // Rodape cor do esporte
+    ctx.fillStyle=s.color;
     ctx.fillRect(0,H-40,W,40);
     ctx.fillStyle=B.white;
     ctx.font="700 9px Arial";
@@ -195,16 +195,16 @@ function StoryCanvas({ news, size=1 }) {
     gradS.addColorStop(1,"rgba(0,0,0,0.94)");
     ctx.fillStyle=gradS; ctx.fillRect(0,H*0.35,W,H-H*0.35);
 
-    // CATEGORIA (badge vermelho)
-    ctx.fillStyle=B.red;
+    // CATEGORIA (badge cor do esporte)
+    ctx.fillStyle=s.color;
     const bw=84,bh=20,bx=14,by=H-215;
     pill(ctx,bx,by,bw,bh,4); ctx.fill();
     ctx.fillStyle=B.white;
     ctx.font="800 9px Arial";
     ctx.fillText(s.emoji+" "+s.label,bx+10,by+13);
 
-    // TRACO vermelho (logo abaixo da categoria)
-    ctx.fillStyle=B.red;
+    // TRACO cor do esporte
+    ctx.fillStyle=s.color;
     ctx.fillRect(14,H-185,32,3);
 
     // TITULO (espaco do traco)
