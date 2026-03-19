@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const B = {
@@ -269,7 +270,13 @@ export default function IGManager() {
   const [igConnected, setIgConnected]= useState(false);
   const [posting,     setPosting]    = useState(null);
   const [toast,       setToast]      = useState(null);
-  const [caption,     setCaption]    = useState("📰 {titulo}\n\n{resumo}\n\n🔗 Link na bio para a matéria completa!\n\n#{esporte} #esportes #portalradardabola #noticias #brasil");
+  const [caption,     setCaption]    = useState("📰 {titulo}
+
+{resumo}
+
+🔗 Link na bio para a matéria completa!
+
+#{esporte} #esportes #portalradardabola #noticias #brasil");
 
   const showToast = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
 

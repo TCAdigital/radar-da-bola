@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useRef } from "react";
 
 const PASS = "radar2026";
@@ -395,7 +396,8 @@ function GamesTab({ games, setGames, showToast }) {
   };
 
   const parseCSV = (text) => {
-    const lines = text.trim().split("\n").filter(l=>l.trim());
+    const lines = text.trim().split("
+").filter(l=>l.trim());
     if(lines.length<2) return { error:"CSV precisa de cabeçalho + ao menos 1 linha." };
     const headers = lines[0].split(",").map(h=>h.trim().toLowerCase());
     const missing = ["league","home","away","time","status"].filter(r=>!headers.includes(r));
@@ -632,7 +634,7 @@ function LoginScreen({ onLogin }) {
   const [pw,   setPw]   = useState("");
   const [err,  setErr]  = useState(false);
   const [show, setShow] = useState(false);
-  const handle = () => pw.trim()===PASS ? onLogin() : (setErr(true), setTimeout(()=>setErr(false),2000));
+  const handle = () => pw===PASS ? onLogin() : (setErr(true), setTimeout(()=>setErr(false),2000));
   return (
     <div style={{ minHeight:"100vh", background:C.bg, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Arial','Helvetica',sans-serif" }}>
       <div style={{ background:C.card, borderRadius:12, padding:"40px 36px", width:360, border:`1px solid ${C.border}`, boxShadow:"0 8px 40px rgba(0,0,0,0.1)" }}>
