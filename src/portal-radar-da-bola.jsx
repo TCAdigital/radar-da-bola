@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
+import AdminApp from "./admin-radar-da-bola";
 
 // ── PALETA ─────────────────────────────────────────────────────────────────
 const BRAND = { red:"#e8002d", black:"#0d0d0d" };
