@@ -264,13 +264,13 @@ function StoryCanvas({ news, size=1 }) {
 
 // ── APP ───────────────────────────────────────────────────────────────────────
 export default function IGManager() {
-  const [view,        setView]       = useState("dashboard"));
+  const [view,        setView]       = useState("dashboard");
   const [statuses,    setStatuses]   = useState(INIT_STATUS);
   const [previewNews, setPreviewNews]= useState(NEWS[0]);
   const [igConnected, setIgConnected]= useState(false);
   const [posting,     setPosting]    = useState(null);
   const [toast,       setToast]      = useState(null);
-  const [caption,     setCaption]    = useState("📰 {titulo}\n\n{resumo}\n\n🔗 Link na bio para a matéria completa!\n\n#{esporte} #esportes #portalradardabola #noticias #brasil"));
+  const [caption,     setCaption]    = useState("📰 {titulo}\n\n{resumo}\n\n🔗 Link na bio para a matéria completa!\n\n#{esporte} #esportes #portalradardabola #noticias #brasil");
 
   const showToast = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
 
