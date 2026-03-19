@@ -2,9 +2,7 @@ name: Auto Update Noticias
 
 on:
   schedule:
-    # Roda a cada 2 horas
     - cron: '0 */2 * * *'
-  # Permite rodar manualmente pelo GitHub
   workflow_dispatch:
 
 jobs:
@@ -12,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codigo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Instalar dependencias
-        run: npm install @supabase/supabase-js node-fetch
+        run: npm install @supabase/supabase-js
 
       - name: Rodar script de atualizacao
         env:

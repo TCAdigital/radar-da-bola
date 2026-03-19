@@ -1,8 +1,6 @@
 // scripts/update-news.js
-// Roda a cada 2h via GitHub Actions
-// Busca noticias com Gemini e salva no Supabase
-
 const { createClient } = require("@supabase/supabase-js");
+const https = require("https");
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -42,58 +40,75 @@ function getImagem(categoria) {
   return imgs[Math.floor(Math.random() * imgs.length)];
 }
 
+function httpsPost(url, body) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(body);
+    const urlObj = new URL(url);
+    const options = {
+      hostname: urlObj.hostname,
+      path: urlObj.pathname + urlObj.search,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(data),
+      },
+    };
+    const req = https.request(options, (res) => {
+      let body = "";
+      res.on("data", (chunk) => body += chunk);
+      res.on("end", () => {
+        try { resolve(JSON.parse(body)); }
+        catch(e) { reject(new Error("JSON parse error: " + body.slice(0,200))); }
+      });
+    });
+    req.on("error", reject);
+    req.write(data);
+    req.end();
+  });
+}
+
 async function buscarNoticias(categoria, tema) {
   const hoje = new Date().toLocaleDateString("pt-BR");
   const prompt = `Voce e um jornalista esportivo brasileiro. Hoje e ${hoje}.
 
 Crie 2 noticias esportivas recentes e realistas sobre: ${tema}
 
-Responda APENAS com JSON valido neste formato exato, sem markdown, sem backticks:
-[
-  {
-    "titulo": "titulo da noticia aqui",
-    "subtitulo": "resumo de 1-2 frases aqui",
-    "conteudo": "texto completo da noticia com 3 paragrafos separados por dois \\n\\n"
-  },
-  {
-    "titulo": "titulo da segunda noticia",
-    "subtitulo": "resumo de 1-2 frases",
-    "conteudo": "texto completo com 3 paragrafos separados por dois \\n\\n"
-  }
-]`;
+Responda APENAS com JSON valido neste formato, sem markdown, sem backticks, sem texto extra:
+[{"titulo":"titulo aqui","subtitulo":"resumo de 1-2 frases","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"},{"titulo":"titulo 2","subtitulo":"resumo","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"}]`;
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 2000 },
-      }),
-    }
-  );
-
-  const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-
-  // Limpar possiveis backticks do Gemini
-  const clean = text.replace(/```json|```/g, "").trim();
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+  
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 2000 },
+  };
 
   try {
+    const data = await httpsPost(url, body);
+    
+    if (data.error) {
+      console.error("Erro da API Gemini:", data.error.message);
+      return [];
+    }
+
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+    console.log("Resposta Gemini (primeiros 200 chars):", text.slice(0, 200));
+    
+    const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
     return JSON.parse(clean);
   } catch(e) {
-    console.error("Erro ao parsear JSON do Gemini:", e.message);
-    console.error("Texto recebido:", text.slice(0, 200));
+    console.error("Erro ao buscar noticias:", e.message);
     return [];
   }
 }
 
 async function salvarNoticias(noticias, categoria) {
   for (const n of noticias) {
-    if (!n.titulo || !n.conteudo) continue;
+    if (!n.titulo || !n.conteudo) {
+      console.log("Noticia invalida, pulando");
+      continue;
+    }
 
-    // Verificar se ja existe noticia com titulo similar (evita duplicatas)
     const { data: existing } = await supabase
       .from("noticias")
       .select("id")
@@ -101,13 +116,13 @@ async function salvarNoticias(noticias, categoria) {
       .limit(1);
 
     if (existing && existing.length > 0) {
-      console.log("Noticia ja existe, pulando:", n.titulo.slice(0, 50));
+      console.log("Ja existe:", n.titulo.slice(0, 50));
       continue;
     }
 
     const { error } = await supabase.from("noticias").insert({
       titulo:     n.titulo,
-      subtitulo:  n.subtitulo,
+      subtitulo:  n.subtitulo || "",
       conteudo:   n.conteudo,
       imagem_url: getImagem(categoria),
       categoria:  categoria,
@@ -116,13 +131,12 @@ async function salvarNoticias(noticias, categoria) {
     if (error) {
       console.error("Erro ao salvar:", error.message);
     } else {
-      console.log("Salvo:", n.titulo.slice(0, 60));
+      console.log("Salvo com sucesso:", n.titulo.slice(0, 60));
     }
   }
 }
 
-async function limparNotiiciasAntigas() {
-  // Manter apenas as 50 noticias mais recentes
+async function limparNoticiasAntigas() {
   const { data } = await supabase
     .from("noticias")
     .select("id")
@@ -139,25 +153,28 @@ async function main() {
   console.log("=== Radar da Bola - Auto Update ===");
   console.log("Horario:", new Date().toLocaleString("pt-BR"));
 
-  if (!GEMINI_KEY || !SUPABASE_URL || !SUPABASE_KEY) {
-    console.error("ERRO: Variaveis de ambiente faltando!");
-    process.exit(1);
-  }
+  if (!GEMINI_KEY) { console.error("ERRO: GEMINI_KEY nao definida!"); process.exit(1); }
+  if (!SUPABASE_URL) { console.error("ERRO: SUPABASE_URL nao definida!"); process.exit(1); }
+  if (!SUPABASE_KEY) { console.error("ERRO: SUPABASE_SERVICE_KEY nao definida!"); process.exit(1); }
+
+  console.log("Gemini Key:", GEMINI_KEY.slice(0,8) + "...");
+  console.log("Supabase URL:", SUPABASE_URL);
 
   for (const { categoria, tema } of TEMAS) {
-    console.log(`\nBuscando noticias: ${categoria}...`);
+    console.log(`\nBuscando: ${categoria}...`);
     try {
       const noticias = await buscarNoticias(categoria, tema);
       console.log(`Recebidas ${noticias.length} noticias`);
-      await salvarNoticias(noticias, categoria);
+      if (noticias.length > 0) {
+        await salvarNoticias(noticias, categoria);
+      }
     } catch (e) {
       console.error(`Erro em ${categoria}:`, e.message);
     }
-    // Pausa entre categorias para nao sobrecarregar a API
     await new Promise(r => setTimeout(r, 2000));
   }
 
-  await limparNotiiciasAntigas();
+  await limparNoticiasAntigas();
   console.log("\n=== Concluido! ===");
 }
 
