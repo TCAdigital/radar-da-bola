@@ -68,12 +68,16 @@ function httpsPost(url, body) {
 }
 
 async function buscarNoticias(categoria, tema) {
-  const hoje = new Date().toLocaleDateString("pt-BR");
-  const prompt = `Voce e um jornalista esportivo brasileiro. Hoje e ${hoje}.
+  const hoje = new Date().toLocaleDateString("pt-BR", {weekday:"long", year:"numeric", month:"long", day:"numeric"});
+  const ano  = new Date().getFullYear();
+  const mes  = new Date().toLocaleDateString("pt-BR", {month:"long"});
+  const prompt = `Voce e um jornalista esportivo brasileiro. HOJE E ${hoje}.
 
-Crie 2 noticias esportivas recentes e realistas sobre: ${tema}
+IMPORTANTE: As noticias DEVEM ser da temporada atual de ${ano}, especificamente de ${mes} de ${ano}.
+Mencione placar, resultado ou acontecimento plausivel para esta data.
+Tema: ${tema}
 
-Responda APENAS com JSON valido neste formato, sem markdown, sem backticks, sem texto extra:
+Responda APENAS com JSON valido, sem markdown, sem backticks, sem texto extra:
 [{"titulo":"titulo aqui","subtitulo":"resumo de 1-2 frases","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"},{"titulo":"titulo 2","subtitulo":"resumo","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"}]`;
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;

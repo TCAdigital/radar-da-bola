@@ -281,12 +281,12 @@ function HomePage({ onArticle }) {
         <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 20px" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:56 }}>
             <div style={{ fontFamily:"'Arial Black','Arial',sans-serif", fontWeight:900, fontSize:20, color:"#fff", letterSpacing:-0.5 }}>
-              RADAR <span style={{ color:BRAND.red }}>DA</span> BOLA
+              RADAR <span style={{ color:"rgba(255,255,255,0.7)" }}> DA </span> BOLA
             </div>
             <div style={{ display:"flex", gap:12, alignItems:"center" }}>
               <span style={{ fontSize:11, color:"rgba(255,255,255,0.35)" }}>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"})}</span>
-              <span style={{ display:"flex", alignItems:"center", gap:5, background:"rgba(232,0,45,0.15)", color:BRAND.red, fontSize:10, fontWeight:700, padding:"4px 10px", borderRadius:20 }}>
-                <span style={{ width:6, height:6, background:BRAND.red, borderRadius:"50%", animation:"blink 1.2s infinite" }} />
+              <span style={{ display:"flex", alignItems:"center", gap:5, background:"rgba(255,255,255,0.2)", color:"#fff", fontSize:10, fontWeight:700, padding:"4px 10px", borderRadius:20 }}>
+                <span style={{ width:6, height:6, background:"#fff", borderRadius:"50%", animation:"blink 1.2s infinite" }} />
                 AO VIVO
               </span>
             </div>
