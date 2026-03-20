@@ -76,7 +76,7 @@ Crie 2 noticias esportivas recentes e realistas sobre: ${tema}
 Responda APENAS com JSON valido neste formato, sem markdown, sem backticks, sem texto extra:
 [{"titulo":"titulo aqui","subtitulo":"resumo de 1-2 frases","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"},{"titulo":"titulo 2","subtitulo":"resumo","conteudo":"paragrafo 1\\n\\nparagrafo 2\\n\\nparagrafo 3"}]`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${GEMINI_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_KEY}`;
   
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
@@ -159,6 +159,24 @@ async function main() {
 
   console.log("Gemini Key:", GEMINI_KEY.slice(0,8) + "...");
   console.log("Supabase URL:", SUPABASE_URL);
+
+  // Listar modelos disponíveis
+  try {
+    const modelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_KEY}`;
+    const modelsRes = await new Promise((resolve, reject) => {
+      const https = require("https");
+      const req = https.get(modelsUrl, (res) => {
+        let body = "";
+        res.on("data", chunk => body += chunk);
+        res.on("end", () => resolve(JSON.parse(body)));
+      });
+      req.on("error", reject);
+    });
+    const names = (modelsRes.models || []).map(m => m.name);
+    console.log("Modelos disponíveis:", names.join(", "));
+  } catch(e) {
+    console.log("Erro ao listar modelos:", e.message);
+  }
 
   for (const { categoria, tema } of TEMAS) {
     console.log(`\nBuscando: ${categoria}...`);
