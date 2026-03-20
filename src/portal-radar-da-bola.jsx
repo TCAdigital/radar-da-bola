@@ -19,7 +19,7 @@ function timeAgo(ts) {
 
 function AdSlot({ h=90, label="Publicidade" }) {
   return (
-    <div style={{ width:"100%", height:h, background:"#f9f9f9", border:"1px dashed #ddd", display:"flex", alignItems:"center", justifyContent:"center", borderRadius:4, margin:"12px 0" }}>
+    <div style={{ width:"100%", height:h, background:"#f9f9f9", border:"1px dashed #ddd", display:"flex", alignItems:"center", justifyContent:"center", borderRadius:4, margin:"16px 0" }}>
       <span style={{ fontSize:11, color:"#ccc", fontFamily:"monospace" }}>{label}</span>
     </div>
   );
@@ -56,12 +56,12 @@ function HeroCard({ news, onClick }) {
   return (
     <div onClick={()=>onClick(news)} style={{ background:"#fff", borderRadius:8, overflow:"hidden", cursor:"pointer", border:"1px solid #e0e0e0", boxShadow:"0 2px 10px rgba(0,0,0,0.07)" }}>
       <div style={{ height:4, background:m.color }} />
-      <div style={{ position:"relative", height:380, background:"#eee" }}>
+      <div style={{ position:"relative", height:480, background:"#eee" }}>
         <img src={news.imagem_url} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} onError={function(e){e.target.style.display="none"}} />
         <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)" }} />
-        <div style={{ position:"absolute", bottom:0, padding:"22px 20px" }}>
+        <div style={{ position:"absolute", bottom:0, padding:"28px 24px" }}>
           <div style={{ marginBottom:8 }}><Badge sport={news.categoria} /></div>
-          <h2 style={{ color:"#fff", fontSize:22, fontWeight:800, margin:"0 0 8px", lineHeight:1.3 }}>{news.titulo}</h2>
+          <h2 style={{ color:"#fff", fontSize:28, fontWeight:900, margin:"0 0 10px", lineHeight:1.3 }}>{news.titulo}</h2>
           <span style={{ color:"rgba(255,255,255,0.55)", fontSize:12 }}>● {timeAgo(news.created_at)}</span>
         </div>
       </div>
@@ -72,14 +72,14 @@ function HeroCard({ news, onClick }) {
 function MediumCard({ news, onClick }) {
   const m = META[news.categoria] || META.futebol;
   return (
-    <div onClick={()=>onClick(news)} style={{ background:"#fff", borderRadius:8, overflow:"hidden", cursor:"pointer", border:"1px solid #e0e0e0", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" }}>
+    <div onClick={()=>onClick(news)} style={{ background:"#fff", borderRadius:10, overflow:"hidden", cursor:"pointer", border:"1px solid #e0e0e0", boxShadow:"0 2px 12px rgba(0,0,0,0.07)", transition:"transform 0.2s, box-shadow 0.2s" }}>
       <div style={{ height:4, background:m.color }} />
-      <div style={{ height:130, background:m.light, overflow:"hidden" }}>
+      <div style={{ height:180, background:m.light, overflow:"hidden" }}>
         <img src={news.imagem_url} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} onError={function(e){e.target.style.display="none"}} />
       </div>
-      <div style={{ padding:"12px 14px" }}>
+      <div style={{ padding:"14px 16px" }}>
         <div style={{ marginBottom:6 }}><Badge sport={news.categoria} small /></div>
-        <h3 style={{ fontSize:13, fontWeight:700, color:"#111", margin:"0 0 6px", lineHeight:1.4 }}>{news.titulo}</h3>
+        <h3 style={{ fontSize:14, fontWeight:700, color:"#111", margin:"0 0 6px", lineHeight:1.4 }}>{news.titulo}</h3>
         <span style={{ fontSize:11, color:"#aaa" }}>● {timeAgo(news.created_at)}</span>
       </div>
     </div>
@@ -89,13 +89,13 @@ function MediumCard({ news, onClick }) {
 function ListCard({ news, onClick }) {
   const m = META[news.categoria] || META.futebol;
   return (
-    <div onClick={()=>onClick(news)} style={{ display:"flex", gap:12, cursor:"pointer", padding:"12px 0", borderBottom:"1px solid #f0f0f0" }}>
-      <div style={{ width:72, height:54, borderRadius:5, overflow:"hidden", flexShrink:0, background:m.light }}>
+    <div onClick={()=>onClick(news)} style={{ display:"flex", gap:12, cursor:"pointer", padding:"14px 0", borderBottom:"1px solid #f0f0f0" }}>
+      <div style={{ width:96, height:72, borderRadius:5, overflow:"hidden", flexShrink:0, background:m.light }}>
         <img src={news.imagem_url} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} onError={function(e){e.target.style.display="none"}} />
       </div>
       <div style={{ flex:1, minWidth:0 }}>
         <div style={{ marginBottom:4 }}><Badge sport={news.categoria} small /></div>
-        <h4 style={{ fontSize:12, fontWeight:700, color:"#111", margin:"0 0 4px", lineHeight:1.35 }}>{news.titulo}</h4>
+        <h4 style={{ fontSize:13, fontWeight:700, color:"#111", margin:"0 0 4px", lineHeight:1.35 }}>{news.titulo}</h4>
         <span style={{ fontSize:11, color:"#aaa" }}>● {timeAgo(news.created_at)}</span>
       </div>
     </div>
@@ -211,7 +211,7 @@ function ArticlePage({ news, onBack, allNews }) {
           <span style={{ color:"rgba(255,255,255,0.5)", fontSize:13 }}>● {timeAgo(news.created_at)}</span>
         </div>
       </div>
-      <div style={{ maxWidth:820, margin:"0 auto", padding:"0 20px" }}>
+      <div style={{ maxWidth:1000, margin:"0 auto", padding:"0 28px" }}>
         <AdSlot h={90} label="Publicidade" />
         <div style={{ background:"#fff", borderRadius:8, padding:"16px 20px", marginBottom:14, border:"1px solid #e0e0e0" }}>
           <ShareButtons article={news} />
@@ -223,14 +223,14 @@ function ArticlePage({ news, onBack, allNews }) {
           {(news.conteudo||"").split("\n\n").map(function(p,i){
             return (
               <div key={i}>
-                <p style={{ fontSize:16, lineHeight:1.85, color:"#222", margin:"0 0 18px" }}>{p}</p>
+                <p style={{ fontSize:17, lineHeight:1.9, color:"#222", margin:"0 0 18px" }}>{p}</p>
                 {i===1 && <AdSlot h={90} label="Publicidade In-Content" />}
               </div>
             );
           })}
         </div>
         <AdSlot h={90} label="Publicidade" />
-        <div style={{ background:"#fff", borderRadius:8, padding:"20px", margin:"16px 0", textAlign:"center", border:"1px solid #e0e0e0" }}>
+        <div style={{ background:"#fff", borderRadius:8, padding:"28px", margin:"16px 0", textAlign:"center", border:"1px solid #e0e0e0" }}>
           <p style={{ margin:"0 0 12px", fontSize:14, fontWeight:700, color:"#111" }}>Gostou? Compartilhe!</p>
           <ShareButtons article={news} />
         </div>
@@ -240,7 +240,7 @@ function ArticlePage({ news, onBack, allNews }) {
               <div style={{ width:4, height:18, background:m.color, borderRadius:2 }} />
               <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:"#111" }}>Mais {(META[news.categoria]||META.futebol).label}</h3>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
               {related.map(function(n){ return <MediumCard key={n.id} news={n} onClick={function(){}} />; })}
             </div>
           </div>
@@ -285,8 +285,8 @@ function HomePage({ onArticle }) {
   return (
     <div style={{ background:"#f5f5f5", minHeight:"100vh", fontFamily:"'Arial','Helvetica',sans-serif" }}>
       <header style={{ background:BRAND.red, position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 20px" }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:56 }}>
+        <div style={{ maxWidth:1400, margin:"0 auto", padding:"0 28px" }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:62 }}>
             <div style={{ fontFamily:"'Arial Black','Arial',sans-serif", fontWeight:900, fontSize:20, color:"#fff", letterSpacing:-0.5 }}>
               RADAR <span style={{ color:"rgba(255,255,255,0.7)" }}> DA </span> BOLA
             </div>
@@ -301,7 +301,7 @@ function HomePage({ onArticle }) {
           <nav style={{ display:"flex", overflowX:"auto", borderTop:"1px solid rgba(255,255,255,0.2)" }}>
             {tabs.map(function(t){
               return (
-                <button key={t} onClick={function(){ setTab(t); }} style={{ background:"none", border:"none", borderBottom:tab===t?"3px solid #fff":"3px solid transparent", color:tab===t?"#fff":"rgba(255,255,255,0.65)", padding:"10px 16px", fontSize:13, fontWeight:tab===t?700:400, cursor:"pointer", whiteSpace:"nowrap", transition:"all 0.15s" }}>
+                <button key={t} onClick={function(){ setTab(t); }} style={{ background:"none", border:"none", borderBottom:tab===t?"3px solid #fff":"3px solid transparent", color:tab===t?"#fff":"rgba(255,255,255,0.65)", padding:"12px 20px", fontSize:13, fontWeight:tab===t?700:400, cursor:"pointer", whiteSpace:"nowrap", transition:"all 0.15s" }}>
                   {tabLabel[t]}
                 </button>
               );
@@ -310,7 +310,7 @@ function HomePage({ onArticle }) {
         </div>
       </header>
 
-      <div style={{ maxWidth:1100, margin:"0 auto", padding:"20px" }}>
+      <div style={{ maxWidth:1400, margin:"0 auto", padding:"28px" }}>
         <AdSlot h={90} label="Publicidade Leaderboard 728x90" />
 
         {tab==="jogos" ? (
@@ -319,7 +319,7 @@ function HomePage({ onArticle }) {
               <h2 style={{ fontSize:20, fontWeight:800, color:"#111", margin:"0 0 4px" }}>Jogos de Hoje</h2>
               <p style={{ fontSize:13, color:"#888", margin:0 }}>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</p>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 300px", gap:24 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:32 }}>
               <TodayGames games={games} />
               <aside>
                 <AdSlot h={250} label="300x250" />
@@ -328,7 +328,7 @@ function HomePage({ onArticle }) {
             </div>
           </div>
         ) : (
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 300px", gap:24 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:32 }}>
             <div>
               {loading ? (
                 <div style={{ background:"#fff", borderRadius:8, padding:60, textAlign:"center", color:"#aaa", border:"1px solid #e0e0e0" }}>
@@ -343,12 +343,12 @@ function HomePage({ onArticle }) {
                   )}
                   <AdSlot h={90} label="Publicidade In-Feed" />
                   {medium.length>0 && (
-                    <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, margin:"16px 0" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, margin:"16px 0" }}>
                       {medium.map(function(n){ return <MediumCard key={n.id} news={n} onClick={onArticle} />; })}
                     </div>
                   )}
                   {rest.length>0 && (
-                    <div style={{ background:"#fff", borderRadius:8, padding:"0 16px", border:"1px solid #e0e0e0" }}>
+                    <div style={{ background:"#fff", borderRadius:10, padding:"4px 20px", border:"1px solid #e0e0e0", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
                       {rest.map(function(n){ return <ListCard key={n.id} news={n} onClick={onArticle} />; })}
                     </div>
                   )}
@@ -357,7 +357,7 @@ function HomePage({ onArticle }) {
             </div>
             <aside>
               <AdSlot h={250} label="300x250" />
-              <div style={{ background:"#fff", borderRadius:8, padding:"16px", border:"1px solid #e0e0e0", marginTop:16 }}>
+              <div style={{ background:"#fff", borderRadius:10, padding:"18px", border:"1px solid #e0e0e0", marginTop:16, boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
                   <div style={{ width:4, height:16, background:BRAND.red, borderRadius:2 }} />
                   <span style={{ fontWeight:800, fontSize:13, color:"#111" }}>Modalidades</span>
@@ -373,7 +373,7 @@ function HomePage({ onArticle }) {
                   );
                 })}
               </div>
-              <div style={{ background:"#fff", borderRadius:8, padding:"16px", border:"1px solid #e0e0e0", marginTop:16 }}>
+              <div style={{ background:"#fff", borderRadius:10, padding:"18px", border:"1px solid #e0e0e0", marginTop:16, boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
                   <div style={{ width:4, height:16, background:BRAND.red, borderRadius:2 }} />
                   <span style={{ fontWeight:800, fontSize:13, color:"#111" }}>Em Alta</span>
@@ -382,7 +382,7 @@ function HomePage({ onArticle }) {
                   var mm = META[n.categoria]||META.futebol;
                   return (
                     <div key={n.id} onClick={function(){ onArticle(n); }} style={{ display:"flex", gap:10, cursor:"pointer", padding:"9px 0", borderBottom:"1px solid #f5f5f5" }}>
-                      <span style={{ fontSize:22, fontWeight:900, color:"#e8e8e8", lineHeight:1, flexShrink:0, width:24, textAlign:"center" }}>{i+1}</span>
+                      <span style={{ fontSize:26, fontWeight:900, color:"#ebebeb", lineHeight:1, flexShrink:0, width:24, textAlign:"center" }}>{i+1}</span>
                       <div>
                         <div style={{ marginBottom:3 }}>
                           <span style={{ background:mm.color, color:"#fff", fontSize:9, fontWeight:700, padding:"1px 6px", borderRadius:2 }}>{mm.label}</span>
