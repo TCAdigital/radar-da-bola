@@ -492,7 +492,13 @@ async function main() {
     process.exit(1);
   }
 
-  const categorias = ["futebol", "formula1", "tenis", "basquete"];
+  // Aceita categoria como argumento: node update-news.js futebol
+  const argCategoria = process.argv[2];
+  const categorias = argCategoria
+    ? [argCategoria]
+    : ["futebol", "formula1", "tenis", "basquete"];
+
+  console.log("Categorias:", categorias.join(", "));
 
   for (const categoria of categorias) {
     console.log(`\n========== ${categoria.toUpperCase()} ==========`);

@@ -63,7 +63,8 @@ const IG_CFG = {
 };
 
 // ── DADOS INICIAIS ─────────────────────────────────────────────────────────────
-const INIT_NEWS = [
+const INIT_NEWS = [];
+const _SAMPLE_NEWS = [
   { id:"f1", sport:"futebol",  minsAgo:40,  igStatus:"posted",
     title:"Palmeiras e Flamengo são campeões estaduais no maior fim de semana do futebol brasileiro",
     summary:"Palmeiras levou o Paulistão e Flamengo bateu o Fluminense nos pênaltis.",
@@ -91,7 +92,8 @@ const INIT_NEWS = [
     img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900&q=80" },
 ];
 
-const INIT_GAMES = [
+const INIT_GAMES = [];
+const _SAMPLE_GAMES = [
   { id:"br1",  leagueId:"brasileirao",  league:"Brasileirão Série A", leagueEmoji:"🇧🇷", leagueColor:"#009c3b", home:"Flamengo",        away:"Botafogo",            time:"16h00", status:"scheduled", probHome:48.2, probDraw:26.7, probAway:25.1 },
   { id:"br2",  leagueId:"brasileirao",  league:"Brasileirão Série A", leagueEmoji:"🇧🇷", leagueColor:"#009c3b", home:"Palmeiras",       away:"Corinthians",         time:"18h30", status:"scheduled", probHome:54.3, probDraw:25.3, probAway:20.4 },
   { id:"br3",  leagueId:"brasileirao",  league:"Brasileirão Série A", leagueEmoji:"🇧🇷", leagueColor:"#009c3b", home:"São Paulo",       away:"Grêmio",              time:"20h00", status:"scheduled", probHome:42.1, probDraw:27.4, probAway:30.5 },
@@ -397,7 +399,8 @@ function GamesTab({ games, setGames, showToast }) {
   };
 
   const parseCSV = (text) => {
-    const lines = text.trim().split(/\r?\n/).filter(l=>l.trim());
+    const lines = text.trim().split("
+").filter(l=>l.trim());
     if(lines.length<2) return { error:"CSV precisa de cabeçalho + ao menos 1 linha." };
     const headers = lines[0].split(",").map(h=>h.trim().toLowerCase());
     const missing = ["league","home","away","time","status"].filter(r=>!headers.includes(r));
@@ -547,44 +550,58 @@ function GamesTab({ games, setGames, showToast }) {
 
 // ── PAINEL PRINCIPAL ──────────────────────────────────────────────────────────
 function AdminPanel({ onLogout }) {
-  const [tab,   setTab]   = useState("noticias");
-  const [news,  setNews]  = useState([]);
-  const [games, setGames] = useState([]);
-  const [toast, setToast] = useState(null);
+  const [tab,      setTab]     = useState("noticias");
+  const [news,     setNews]    = useState(INIT_NEWS);
+  const [games,    setGames]   = useState(INIT_GAMES);
+  const [toast,    setToast]   = useState(null);
+  const [loading,  setLoading] = useState(true);
 
   const showToast = (msg, ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
 
-  // Carregar dados do Supabase ao iniciar
+  // Carregar dados do Supabase
   useEffect(() => {
-    fetchData();
-  }, []);
+    async function loadData() {
+      setLoading(true);
+      try {
+        const { data: noticias } = await supabase
+          .from("noticias")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-  const fetchData = async () => {
-    // Notícias
-    const { data: nData } = await supabase.from('news').select('*').order('created_at', { ascending: false });
-    if (nData) {
-      // Calcular minutos atrás baseado no created_at
-      const mappedNews = nData.map(n => ({
-        ...n,
-        minsAgo: n.created_at ? Math.floor((new Date() - new Date(n.created_at)) / 60000) : 0
-      }));
-      setNews(mappedNews);
+        if (noticias) {
+          // Converter formato Supabase para formato do admin
+          setNews(noticias.map(n => ({
+            id:       n.id,
+            sport:    n.categoria,
+            minsAgo:  Math.floor((Date.now() - new Date(n.created_at)) / 60000),
+            igStatus: "pending",
+            title:    n.titulo,
+            titulo:   n.titulo,
+            summary:  n.subtitulo,
+            subtitulo:n.subtitulo,
+            content:  n.conteudo,
+            conteudo: n.conteudo,
+            img:      n.imagem_url,
+            imagem_url:n.imagem_url,
+          })));
+        }
+
+        const hoje = new Date().toISOString().split("T")[0];
+        const { data: jogos } = await supabase
+          .from("jogos")
+          .select("*")
+          .eq("data_jogo", hoje)
+          .order("time");
+
+        if (jogos) setGames(jogos);
+      } catch(e) {
+        console.error("Erro ao carregar dados:", e);
+      }
+      setLoading(false);
     }
-    // Jogos
-    const { data: gData } = await supabase.from('games').select('*');
-    if (gData) setGames(gData);
-  };
-
-  // Wrappers para atualizar o estado local E o banco de dados
-  const handleSetNews = async (action) => {
-    // action pode ser um novo array ou uma função callback
-    const newNewsList = typeof action === 'function' ? action(news) : action;
-    
-    // Identificar mudanças é complexo aqui, então vamos simplificar:
-    // Para salvar edições/criações, usamos upsert direto nos componentes filhos (NewsTab/GamesTab) seria o ideal,
-    // mas para manter a estrutura atual, vamos passar uma função interceptadora.
-    setNews(newNewsList);
-  };
+    loadData();
+  }, []);
 
   const sn = { total:news.length, posted:news.filter(n=>n.igStatus==="posted").length, pending:news.filter(n=>n.igStatus==="pending").length, blocked:news.filter(n=>n.igStatus==="blocked").length };
   const sg = { total:games.length, live:games.filter(g=>g.status==="live").length, finished:games.filter(g=>g.status==="finished").length, ligas:[...new Set(games.map(g=>g.leagueId))].length };
@@ -647,43 +664,8 @@ function AdminPanel({ onLogout }) {
         </div>
 
         {tab==="noticias"
-          ? <NewsTab
-              news={news}
-              setNews={(val) => {
-                // Intercepta atualização local para salvar no banco
-                setNews(prev => {
-                  const newList = typeof val === 'function' ? val(prev) : val;
-                  // Encontra o item alterado ou adicionado
-                  const changed = newList.find(n => !prev.includes(n)) || newList.find(n => prev.find(old => old.id === n.id && old !== n));
-                  // Se foi deletado
-                  const deleted = prev.find(n => !newList.includes(n));
-
-                  if (deleted) supabase.from('news').delete().eq('id', deleted.id).then();
-                  if (changed) {
-                    const { minsAgo, ...dbRow } = changed; // Remove minsAgo virtual antes de salvar
-                    supabase.from('news').upsert(dbRow).then();
-                  }
-                  return newList;
-                });
-              }}
-              showToast={showToast}
-            />
-          : <GamesTab
-              games={games}
-              setGames={(val) => {
-                setGames(prev => {
-                  const newList = typeof val === 'function' ? val(prev) : val;
-                  const changed = newList.find(g => !prev.includes(g)) || newList.find(g => prev.find(old => old.id === g.id && old !== g));
-                  const deleted = prev.find(g => !newList.includes(g));
-
-                  if (deleted) supabase.from('games').delete().eq('id', deleted.id).then();
-                  if (changed) supabase.from('games').upsert(changed).then();
-                  
-                  return newList;
-                });
-              }}
-              showToast={showToast}
-            />
+          ? <NewsTab  news={news}   setNews={setNews}   showToast={showToast} />
+          : <GamesTab games={games} setGames={setGames} showToast={showToast} />
         }
       </div>
 

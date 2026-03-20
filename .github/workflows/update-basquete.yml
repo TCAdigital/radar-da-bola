@@ -1,0 +1,24 @@
+name: Update Basquete
+on:
+  schedule:
+    - cron: '30 9 * * *'
+    - cron: '30 15 * * *'
+    - cron: '30 21 * * *'
+  workflow_dispatch:
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install @supabase/supabase-js
+      - run: node scripts/update-news.js basquete
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          PIXABAY_KEY: ${{ secrets.PIXABAY_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
