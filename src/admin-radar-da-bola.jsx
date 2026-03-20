@@ -286,7 +286,23 @@ function NewsTab({ news, setNews, showToast }) {
   const [search,  setSearch]  = useState("");
   const [posting, setPosting] = useState(null);
 
-  const saveEdit    = (id, f) => { setNews(n=>n.map(x=>x.id===id?{...x,...f}:x)); setEditing(null); showToast("✓ Notícia atualizada!"); };
+  const saveEdit = async (id, f) => {
+    try {
+      const { error } = await supabase.from("noticias").update({
+        titulo:     f.title || f.titulo,
+        subtitulo:  f.summary || f.subtitulo,
+        conteudo:   f.content || f.conteudo,
+        imagem_url: f.img || f.imagem_url,
+        categoria:  f.sport || f.categoria,
+      }).eq("id", id);
+      if (error) throw error;
+      setNews(n=>n.map(x=>x.id===id?{...x,...f}:x));
+      setEditing(null);
+      showToast("✓ Notícia atualizada!");
+    } catch(e) {
+      showToast("Erro ao salvar: " + e.message, false);
+    }
+  };
   const toggleBlock = (id) => {
     const n = news.find(x=>x.id===id);
     const block = n.igStatus!=="blocked";
@@ -299,7 +315,17 @@ function NewsTab({ news, setNews, showToast }) {
     setNews(n=>n.map(x=>x.id===id?{...x,igStatus:"generating"}:x));
     setTimeout(()=>{ setNews(n=>n.map(x=>x.id===id?{...x,igStatus:"posted"}:x)); setPosting(null); showToast("✓ Publicado no Instagram!"); }, 2200);
   };
-  const deleteNews = (id) => { if(!window.confirm("Remover esta notícia?")) return; setNews(n=>n.filter(x=>x.id!==id)); showToast("Notícia removida.", false); };
+  const deleteNews = async (id) => {
+    if(!window.confirm("Remover esta notícia?")) return;
+    try {
+      const { error } = await supabase.from("noticias").delete().eq("id", id);
+      if (error) throw error;
+      setNews(n=>n.filter(x=>x.id!==id));
+      showToast("Notícia removida.", false);
+    } catch(e) {
+      showToast("Erro ao remover: " + e.message, false);
+    }
+  };
 
   const filtered = news.filter(n=>filter==="all"||n.sport===filter).filter(n=>!search||n.title.toLowerCase().includes(search.toLowerCase()));
 

@@ -49,8 +49,8 @@ function converterHorario(utcStr) {
 
 function getStatus(match) {
   const s = match.status || "";
-  if (["FINISHED","FT"].includes(s)) return "finished";
-  if (["IN_PLAY","PAUSED","HALFTIME","LIVE"].includes(s)) return "live";
+  if (["FINISHED","FT","AWARDED","POSTPONED","SUSPENDED","CANCELLED"].includes(s)) return "finished";
+  if (["IN_PLAY","PAUSED","HALFTIME","LIVE","FIRST_HALF","SECOND_HALF","EXTRA_TIME","PENALTY"].includes(s)) return "live";
   return "scheduled";
 }
 
@@ -71,8 +71,16 @@ async function buscarJogosLiga(liga) {
       away:         m.awayTeam?.shortName || m.awayTeam?.name || "Visitante",
       time:         converterHorario(m.utcDate),
       status:       getStatus(m),
-      score_home:   m.score?.fullTime?.home ?? m.score?.halfTime?.home ?? null,
-      score_away:   m.score?.fullTime?.away ?? m.score?.halfTime?.away ?? null,
+      score_home:   (m.score?.fullTime?.home !== null && m.score?.fullTime?.home !== undefined)
+                    ? m.score.fullTime.home
+                    : (m.score?.halfTime?.home !== null && m.score?.halfTime?.home !== undefined)
+                    ? m.score.halfTime.home
+                    : null,
+      score_away:   (m.score?.fullTime?.away !== null && m.score?.fullTime?.away !== undefined)
+                    ? m.score.fullTime.away
+                    : (m.score?.halfTime?.away !== null && m.score?.halfTime?.away !== undefined)
+                    ? m.score.halfTime.away
+                    : null,
       prob_home:    null,
       prob_draw:    null,
       prob_away:    null,

@@ -121,10 +121,12 @@ function ProbBar({ home, away, draw, color }) {
 }
 
 function GameCard({ game }) {
-  var isLive = game.status === "live";
-  var color  = game.league_color || "#333";
+  var isLive     = game.status === "live";
+  var isFinished = game.status === "finished";
+  var hasScore   = game.score_home !== null && game.score_home !== undefined;
+  var color      = game.league_color || "#333";
   return (
-    <div style={{ background:"#fff", borderRadius:8, padding:"12px 16px", border:"1px solid #e8e8e8", borderLeft:"3px solid "+(isLive?"#e8002d":color) }}>
+    <div style={{ background:"#fff", borderRadius:8, padding:"12px 16px", border:"1px solid #e8e8e8", borderLeft:"3px solid "+(isLive?"#e8002d":color), opacity:isFinished?0.75:1 }}>
       {game.extra && <div style={{ fontSize:10, color:"#bbb", marginBottom:6 }}>{game.extra}</div>}
       <div style={{ display:"grid", gridTemplateColumns:"1fr auto 1fr", alignItems:"center", gap:8 }}>
         <span style={{ fontSize:13, fontWeight:700, color:"#111", lineHeight:1.3 }}>{game.home}</span>
@@ -135,7 +137,12 @@ function GameCard({ game }) {
                 <div style={{ width:6, height:6, borderRadius:"50%", background:"#e8002d", animation:"blink 1s infinite" }} />
                 <span style={{ fontSize:9, fontWeight:800, color:"#e8002d" }}>AO VIVO</span>
               </div>
-              {game.score_home !== null && <span style={{ fontSize:18, fontWeight:900, color:"#111" }}>{game.score_home} - {game.score_away}</span>}
+              {hasScore && <span style={{ fontSize:18, fontWeight:900, color:"#111" }}>{game.score_home} - {game.score_away}</span>}
+            </div>
+          ) : isFinished && hasScore ? (
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+              <span style={{ fontSize:18, fontWeight:900, color:"#111" }}>{game.score_home} - {game.score_away}</span>
+              <span style={{ fontSize:9, color:"#aaa", fontWeight:600, letterSpacing:0.5 }}>ENCERRADO</span>
             </div>
           ) : (
             <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
@@ -146,7 +153,7 @@ function GameCard({ game }) {
         </div>
         <span style={{ fontSize:13, fontWeight:700, color:"#111", textAlign:"right", lineHeight:1.3 }}>{game.away}</span>
       </div>
-      {game.prob_home && (
+      {game.prob_home && !isFinished && (
         <div style={{ marginTop:10 }}>
           <ProbBar home={game.prob_home} away={game.prob_away} draw={game.prob_draw} color={color} />
         </div>
