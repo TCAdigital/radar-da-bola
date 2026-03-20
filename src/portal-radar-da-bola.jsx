@@ -263,11 +263,12 @@ function NewsTicker({ news }) {
   const items = news.slice(0, 10);
   const m = { futebol:META.futebol, formula1:META.formula1, tenis:META.tenis, basquete:META.basquete };
   return (
-    <div style={{ background:"#111", borderBottom:"2px solid #222", overflow:"hidden", height:32, display:"flex", alignItems:"center" }}>
-      <div style={{ background:BRAND.red, color:"#fff", fontSize:10, fontWeight:800, padding:"0 14px", height:"100%", display:"flex", alignItems:"center", letterSpacing:1, whiteSpace:"nowrap", flexShrink:0 }}>
-        EM ALTA
+    <div style={{ background:"#111", borderBottom:"2px solid #222", overflow:"hidden", height:36, display:"flex", alignItems:"center" }}>
+      <div style={{ maxWidth:1400, margin:"0 auto", width:"100%", display:"flex", alignItems:"center", padding:"0 28px" }}>
+      <div style={{ background:BRAND.red, color:"#fff", fontSize:10, fontWeight:800, padding:"6px 14px", display:"flex", alignItems:"center", letterSpacing:1, whiteSpace:"nowrap", flexShrink:0, borderRadius:3 }}>
+        EM ALTA 🔥
       </div>
-      <div style={{ overflow:"hidden", flex:1, position:"relative" }}>
+      <div style={{ overflow:"hidden", flex:1, position:"relative", marginLeft:12 }}>
         <div style={{ display:"flex", gap:0, animation:"ticker 40s linear infinite", whiteSpace:"nowrap" }}>
           {[...items,...items].map(function(n,i){
             var mm = m[n.categoria]||META.futebol;
@@ -279,6 +280,7 @@ function NewsTicker({ news }) {
             );
           })}
         </div>
+      </div>
       </div>
       <style>{"@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}"}</style>
     </div>
@@ -304,7 +306,8 @@ function CopaCountdown() {
     return function(){ clearInterval(t); };
   },[]);
   return (
-    <div style={{ background:"linear-gradient(135deg, #009c3b 0%, #006428 50%, #009c3b 100%)", padding:"10px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+    <div style={{ background:"linear-gradient(135deg, #009c3b 0%, #006428 50%, #009c3b 100%)", padding:"10px 0" }}>
+    <div style={{ maxWidth:1400, margin:"0 auto", padding:"0 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
       <div style={{ display:"flex", alignItems:"center", gap:12 }}>
         <span style={{ fontSize:22 }}>🌍</span>
         <div>
@@ -325,6 +328,7 @@ function CopaCountdown() {
       <div style={{ fontSize:11, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>
         🇧🇷 Seleção Brasileira na Copa
       </div>
+    </div>
     </div>
   );
 }
@@ -389,8 +393,8 @@ function HomePage({ onArticle }) {
         </div>
       </header>
 
-      <CopaCountdown />
       <NewsTicker news={news} />
+      <CopaCountdown />
 
       <div style={{ maxWidth:1400, margin:"0 auto", padding:"28px" }}>
         <AdSlot h={90} label="Publicidade Leaderboard 728x90" />
