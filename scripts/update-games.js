@@ -86,6 +86,8 @@ async function buscarJogosLiga(liga) {
       prob_away:    null,
       data_jogo:    hoje,
       extra:        m.stage || m.group || null,
+      home_logo:    m.homeTeam?.crest || null,
+      away_logo:    m.awayTeam?.crest || null,
     }));
   } catch(e) {
     console.log(`  Erro ${liga.code}: ${e.message}`);

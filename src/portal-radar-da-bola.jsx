@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 const BRAND = { red:"#e8002d", black:"#0d0d0d", white:"#ffffff" };
@@ -129,7 +129,10 @@ function GameCard({ game }) {
     <div style={{ background:"#fff", borderRadius:8, padding:"12px 16px", border:"1px solid #e8e8e8", borderLeft:"3px solid "+(isLive?"#e8002d":color), opacity:isFinished?0.75:1 }}>
       {game.extra && <div style={{ fontSize:10, color:"#bbb", marginBottom:6 }}>{game.extra}</div>}
       <div style={{ display:"grid", gridTemplateColumns:"1fr auto 1fr", alignItems:"center", gap:8 }}>
-        <span style={{ fontSize:13, fontWeight:700, color:"#111", lineHeight:1.3 }}>{game.home}</span>
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          {game.home_logo && <img src={game.home_logo} alt="" style={{ width:24, height:24, objectFit:"contain" }} onError={function(e){e.target.style.display="none"}} />}
+          <span style={{ fontSize:13, fontWeight:700, color:"#111", lineHeight:1.3 }}>{game.home}</span>
+        </div>
         <div style={{ textAlign:"center", minWidth:80 }}>
           {isLive ? (
             <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
@@ -151,7 +154,10 @@ function GameCard({ game }) {
             </div>
           )}
         </div>
-        <span style={{ fontSize:13, fontWeight:700, color:"#111", textAlign:"right", lineHeight:1.3 }}>{game.away}</span>
+        <div style={{ display:"flex", alignItems:"center", gap:8, justifyContent:"flex-end" }}>
+          <span style={{ fontSize:13, fontWeight:700, color:"#111", lineHeight:1.3, textAlign:"right" }}>{game.away}</span>
+          {game.away_logo && <img src={game.away_logo} alt="" style={{ width:24, height:24, objectFit:"contain" }} onError={function(e){e.target.style.display="none"}} />}
+        </div>
       </div>
       {game.prob_home && !isFinished && (
         <div style={{ marginTop:10 }}>
@@ -250,6 +256,79 @@ function ArticlePage({ news, onBack, allNews }) {
   );
 }
 
+
+// ── TICKER DE MANCHETES ───────────────────────────────────────────────────────
+function NewsTicker({ news }) {
+  if (!news || news.length === 0) return null;
+  const items = news.slice(0, 10);
+  const m = { futebol:META.futebol, formula1:META.formula1, tenis:META.tenis, basquete:META.basquete };
+  return (
+    <div style={{ background:"#111", borderBottom:"2px solid #222", overflow:"hidden", height:32, display:"flex", alignItems:"center" }}>
+      <div style={{ background:BRAND.red, color:"#fff", fontSize:10, fontWeight:800, padding:"0 14px", height:"100%", display:"flex", alignItems:"center", letterSpacing:1, whiteSpace:"nowrap", flexShrink:0 }}>
+        EM ALTA
+      </div>
+      <div style={{ overflow:"hidden", flex:1, position:"relative" }}>
+        <div style={{ display:"flex", gap:0, animation:"ticker 40s linear infinite", whiteSpace:"nowrap" }}>
+          {[...items,...items].map(function(n,i){
+            var mm = m[n.categoria]||META.futebol;
+            return (
+              <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"0 24px", fontSize:11, color:"rgba(255,255,255,0.75)", borderRight:"1px solid #333", cursor:"pointer" }}>
+                <span style={{ fontSize:10 }}>{mm.emoji}</span>
+                {n.titulo}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+      <style>{"@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}"}</style>
+    </div>
+  );
+}
+
+// ── CONTAGEM REGRESSIVA COPA 2026 ─────────────────────────────────────────────
+function CopaCountdown() {
+  var [time, setTime] = React.useState({ dias:0, horas:0, min:0, seg:0 });
+  React.useEffect(function(){
+    function calc(){
+      var copa = new Date("2026-06-11T17:00:00Z");
+      var diff = copa - Date.now();
+      if(diff <= 0) return;
+      var dias  = Math.floor(diff/86400000);
+      var horas = Math.floor((diff%86400000)/3600000);
+      var min   = Math.floor((diff%3600000)/60000);
+      var seg   = Math.floor((diff%60000)/1000);
+      setTime({ dias, horas, min, seg });
+    }
+    calc();
+    var t = setInterval(calc, 1000);
+    return function(){ clearInterval(t); };
+  },[]);
+  return (
+    <div style={{ background:"linear-gradient(135deg, #009c3b 0%, #006428 50%, #009c3b 100%)", padding:"10px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+        <span style={{ fontSize:22 }}>🌍</span>
+        <div>
+          <div style={{ fontSize:13, fontWeight:800, color:"#fff", letterSpacing:0.5 }}>COPA DO MUNDO 2026</div>
+          <div style={{ fontSize:10, color:"rgba(255,255,255,0.65)", letterSpacing:1 }}>EUA · CANADÁ · MÉXICO · 11 JUN 2026</div>
+        </div>
+      </div>
+      <div style={{ display:"flex", gap:16, alignItems:"center" }}>
+        {[["dias",time.dias],["hr",time.horas],["min",time.min],["seg",time.seg]].map(function(item){
+          return (
+            <div key={item[0]} style={{ textAlign:"center" }}>
+              <div style={{ fontSize:26, fontWeight:900, color:"#fff", lineHeight:1, minWidth:40 }}>{String(item[1]).padStart(2,"0")}</div>
+              <div style={{ fontSize:9, color:"rgba(255,255,255,0.6)", letterSpacing:1, marginTop:2 }}>{item[0].toUpperCase()}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ fontSize:11, color:"rgba(255,255,255,0.7)", fontWeight:600 }}>
+        🇧🇷 Seleção Brasileira na Copa
+      </div>
+    </div>
+  );
+}
+
 function HomePage({ onArticle }) {
   var [tab, setTab]       = useState("inicio");
   var [news, setNews]     = useState([]);
@@ -309,6 +388,9 @@ function HomePage({ onArticle }) {
           </nav>
         </div>
       </header>
+
+      <CopaCountdown />
+      <NewsTicker news={news} />
 
       <div style={{ maxWidth:1400, margin:"0 auto", padding:"28px" }}>
         <AdSlot h={90} label="Publicidade Leaderboard 728x90" />
