@@ -5,9 +5,12 @@ const { createClient } = require("@supabase/supabase-js");
 const https = require("https");
 const http  = require("http");
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const GEMINI_KEY   = process.env.GEMINI_KEY;
+const SUPABASE_URL  = process.env.SUPABASE_URL;
+const SUPABASE_KEY  = process.env.SUPABASE_SERVICE_KEY;
+const GEMINI_KEY    = process.env.GEMINI_KEY;
+const PIXABAY_KEY   = process.env.PIXABAY_KEY;
+const GOOGLE_KEY    = process.env.GOOGLE_API_KEY;
+const GOOGLE_CSE    = process.env.GOOGLE_CSE_ID;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -206,31 +209,88 @@ function pertenceCategoria(titulo, resumo, categoria) {
 }
 
 // ── BUSCA IMAGEM NO UNSPLASH ──────────────────────────────────────────────────
-async function buscarImagem(titulo, categoria) {
+// Busca imagem no Google Custom Search (mais relevante)
+async function buscarImagemGoogle(query) {
   try {
-    // Palavras-chave por categoria para busca no Unsplash
-    const queries = {
-      futebol:  "soccer football stadium",
-      formula1: "formula 1 race car motorsport",
-      tenis:    "tennis court player",
-      basquete: "basketball nba court",
-    };
-    const query = encodeURIComponent(queries[categoria] || "sports");
-    const url = `https://source.unsplash.com/900x600/?${query}`;
-    // Unsplash source retorna redirect para imagem real
-    const img = await new Promise((resolve) => {
-      https.get(url, { headers: { "User-Agent": "Mozilla/5.0" } }, (res) => {
-        if (res.statusCode >= 300 && res.headers.location) {
-          resolve(res.headers.location);
-        } else {
-          resolve(url);
-        }
-      }).on("error", () => resolve(getFallbackImagem(categoria)));
+    const q = encodeURIComponent(query);
+    const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_KEY}&cx=${GOOGLE_CSE}&q=${q}&searchType=image&imgSize=large&imgType=photo&num=3&safe=active`;
+    const data = await new Promise((resolve, reject) => {
+      https.get(url, { headers: { "User-Agent": "RadarDaBola/1.0" } }, (res) => {
+        let body = "";
+        res.on("data", c => body += c);
+        res.on("end", () => { try { resolve(JSON.parse(body)); } catch(e) { resolve(null); } });
+      }).on("error", reject);
     });
-    return img;
+    const items = data?.items || [];
+    if (items.length > 0) {
+      // Pega uma imagem aleatoria dos 3 resultados
+      const idx = Math.floor(Math.random() * items.length);
+      const img = items[idx]?.link;
+      if (img && img.startsWith("http")) return img;
+    }
+    return null;
   } catch(e) {
-    return getFallbackImagem(categoria);
+    return null;
   }
+}
+
+// Busca imagem no Pixabay (fallback)
+async function buscarImagemPixabay(query) {
+  try {
+    const q = encodeURIComponent(query);
+    const url = `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${q}&image_type=photo&orientation=horizontal&category=sports&min_width=800&per_page=5&safesearch=true`;
+    const data = await new Promise((resolve, reject) => {
+      https.get(url, { headers: { "User-Agent": "RadarDaBola/1.0" } }, (res) => {
+        let body = "";
+        res.on("data", c => body += c);
+        res.on("end", () => { try { resolve(JSON.parse(body)); } catch(e) { resolve(null); } });
+      }).on("error", reject);
+    });
+    const hits = data?.hits || [];
+    if (hits.length > 0) {
+      const idx = Math.floor(Math.random() * hits.length);
+      return hits[idx]?.largeImageURL || hits[idx]?.webformatURL || null;
+    }
+    return null;
+  } catch(e) {
+    return null;
+  }
+}
+
+// Imagens fallback garantidas por categoria
+function getFallbackUnsplash(categoria) {
+  const seed = Math.random().toString(36).slice(2,8);
+  const q = { futebol:"soccer football", formula1:"formula1 racing", tenis:"tennis", basquete:"basketball" };
+  return `https://source.unsplash.com/900x600/?${encodeURIComponent(q[categoria]||"sports")}&sig=${seed}`;
+}
+
+// Busca imagem inteligente: Google → Pixabay → Unsplash
+async function buscarImagem(titulo, categoria) {
+  // Monta query especifica baseada no titulo
+  const queryMap = {
+    futebol:  "futebol " + titulo.split(" ").slice(0,4).join(" "),
+    formula1: "formula 1 " + titulo.split(" ").slice(0,3).join(" "),
+    tenis:    "tennis " + titulo.split(" ").slice(0,3).join(" "),
+    basquete: "basketball NBA " + titulo.split(" ").slice(0,3).join(" "),
+  };
+  const query = queryMap[categoria] || titulo.slice(0, 40);
+
+  // 1. Tenta Google Custom Search
+  if (GOOGLE_KEY && GOOGLE_CSE) {
+    const img = await buscarImagemGoogle(query);
+    if (img) { console.log("  Imagem: Google ✓"); return img; }
+  }
+
+  // 2. Tenta Pixabay
+  if (PIXABAY_KEY) {
+    const pixQuery = { futebol:"soccer football", formula1:"formula1 racing car", tenis:"tennis player", basquete:"basketball nba" };
+    const img = await buscarImagemPixabay(pixQuery[categoria] || "sports");
+    if (img) { console.log("  Imagem: Pixabay ✓"); return img; }
+  }
+
+  // 3. Fallback Unsplash
+  console.log("  Imagem: Unsplash fallback");
+  return getFallbackUnsplash(categoria);
 }
 
 // ── BUSCA RSS DE TODAS AS FONTES DA CATEGORIA ─────────────────────────────────
@@ -374,14 +434,8 @@ async function salvarNoticias(noticias, noticiasOriginais, categoria) {
       continue;
     }
 
-    // Usar imagem real do RSS se disponivel, senao busca no Unsplash
-    const originalImg = noticiasOriginais[i]?.imagem;
-    let imagem;
-    if (originalImg && originalImg.startsWith("http")) {
-      imagem = originalImg;
-    } else {
-      imagem = await buscarImagem(n.titulo, categoria);
-    }
+    // Busca imagem inteligente: Google → Pixabay → Unsplash
+    const imagem = await buscarImagem(n.titulo, categoria);
 
     const { error } = await supabase.from("noticias").insert({
       titulo:     n.titulo,
