@@ -412,11 +412,34 @@ function GamesTab({ games, setGames, showToast }) {
   const leagues  = [...new Set(games.map(g=>g.leagueId))];
   const filtered = filterLeague==="all" ? games : games.filter(g=>g.leagueId===filterLeague);
 
-  const saveGame = (g) => {
-    setGames(prev=>{ const i=prev.findIndex(x=>x.id===g.id); if(i>=0){const n=[...prev];n[i]=g;return n;} return [...prev,g]; });
-    setEditingGame(null); showToast("✓ Jogo salvo!");
+  const saveGame = async (g) => {
+    try {
+      const isNew = !games.find(x=>x.id===g.id);
+      if (isNew) {
+        const { error } = await supabase.from("jogos").insert(g);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("jogos").update(g).eq("id", g.id);
+        if (error) throw error;
+      }
+      setGames(prev=>{ const i=prev.findIndex(x=>x.id===g.id); if(i>=0){const n=[...prev];n[i]=g;return n;} return [...prev,g]; });
+      setEditingGame(null);
+      showToast("✓ Jogo salvo!");
+    } catch(e) {
+      showToast("Erro ao salvar: " + e.message, false);
+    }
   };
-  const deleteGame = (id) => { if(!window.confirm("Remover este jogo?")) return; setGames(prev=>prev.filter(x=>x.id!==id)); showToast("Jogo removido.", false); };
+  const deleteGame = async (id) => {
+    if(!window.confirm("Remover este jogo?")) return;
+    try {
+      const { error } = await supabase.from("jogos").delete().eq("id", id);
+      if (error) throw error;
+      setGames(prev=>prev.filter(x=>x.id!==id));
+      showToast("Jogo removido.", false);
+    } catch(e) {
+      showToast("Erro ao remover: " + e.message, false);
+    }
+  };
 
   const downloadTemplate = () => {
     const a = document.createElement("a");
