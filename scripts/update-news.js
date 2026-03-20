@@ -385,16 +385,25 @@ Responda APENAS JSON valido, sem markdown, sem backticks:
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
 
-  try {
-    const data = await httpsPost(url, {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.6, maxOutputTokens: 8192 },
-    });
+  // Tenta ate 3 vezes com espera em caso de quota
+  for (let tentativa = 1; tentativa <= 3; tentativa++) {
+    try {
+      const data = await httpsPost(url, {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.6, maxOutputTokens: 8192 },
+      });
 
-    if (data.error) {
-      console.error("Erro Gemini:", data.error.message);
-      return [];
-    }
+      if (data.error) {
+        const msg = data.error.message || "";
+        if (msg.includes("quota") || msg.includes("RESOURCE_EXHAUSTED")) {
+          const wait = 30 * tentativa;
+          console.log(`  Quota Gemini, aguardando ${wait}s (tentativa ${tentativa}/3)...`);
+          await new Promise(r => setTimeout(r, wait * 1000));
+          continue;
+        }
+        console.error("Erro Gemini:", msg);
+        return [];
+      }
 
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
     console.log("Gemini (300 chars):", text.slice(0, 300));
@@ -410,10 +419,16 @@ Responda APENAS JSON valido, sem markdown, sem backticks:
       console.log("JSON parse falhou, tentando recuperar...");
       return [];
     }
-  } catch(e) {
-    console.error("Erro Gemini:", e.message);
-    return [];
+    } catch(e) {
+      console.error("Erro Gemini:", e.message);
+      if (tentativa < 3) {
+        await new Promise(r => setTimeout(r, 15000));
+        continue;
+      }
+      return [];
+    }
   }
+  return [];
 }
 
 // ── SALVAR NO SUPABASE ────────────────────────────────────────────────────────
@@ -506,7 +521,7 @@ async function main() {
     }
 
     // Pausa entre categorias
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 15000)); // Pausa para nao estourar quota Gemini
   }
 
   await limparNoticiasAntigas();
