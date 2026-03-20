@@ -14,28 +14,67 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // ── FONTES RSS POR CATEGORIA ──────────────────────────────────────────────────
 const FONTES = {
   futebol: [
+    // Google News (imagens reais + noticias frescas)
+    "https://news.google.com/rss/topics/CAAqKggKIiRDQkFTRlFvSUwyMHZNRFp1ZEdvU0JYQjBMVUpTR2dKQ1VpZ0FQAQ?hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    "https://news.google.com/rss/search?q=futebol+brasileiro+brasileirao&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    "https://news.google.com/rss/search?q=libertadores+2026&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    "https://news.google.com/rss/search?q=copa+do+brasil+2026&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    // Portais especializados
+    "https://www.gazetaesportiva.com/feed/",
+    "https://www.lance.com.br/feed/",
+    "https://esportes.r7.com/futebol/feed.xml",
+    // GE Globo
+    "https://ge.globo.com/rss/futebol/brasileirao-serie-a/",
+    "https://ge.globo.com/rss/futebol/libertadores/",
+    "https://ge.globo.com/rss/futebol/futebol-internacional/",
     "https://ge.globo.com/rss/futebol/",
+    // ESPN e Goal
     "https://www.espn.com.br/rss/futebol/",
-    "https://www.uol.com.br/esporte/futebol/index.xml",
     "https://www.goal.com/feeds/br/news",
-    "https://www.terra.com.br/esportes/futebol/index.xml",
   ],
   formula1: [
+    // Google News
+    "https://news.google.com/rss/search?q=formula+1+2026+F1&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    "https://news.google.com/rss/search?q=Bortoleto+F1+2026&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    // Portais
+    "https://www.gazetaesportiva.com/feed/",
+    "https://www.lance.com.br/feed/",
+    "https://esportes.r7.com/formula-1/feed.xml",
     "https://ge.globo.com/rss/formula-1/",
-    "https://www.espn.com.br/rss/formula1/",
-    "https://www.uol.com.br/esporte/formula-1/index.xml",
+    "https://www.espn.com.br/rss/f1/",
+    "https://www.motorsport.com/rss/f1/news/",
     "https://www.autosport.com/rss/f1/news/",
   ],
   tenis: [
+    // Google News
+    "https://news.google.com/rss/search?q=tenis+ATP+WTA+2026&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    "https://news.google.com/rss/search?q=Joao+Fonseca+tenis&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    // Portais
+    "https://www.gazetaesportiva.com/feed/",
+    "https://www.lance.com.br/feed/",
+    "https://esportes.r7.com/tenis/feed.xml",
     "https://ge.globo.com/rss/tenis/",
     "https://www.espn.com.br/rss/tenis/",
-    "https://www.uol.com.br/esporte/tenis/index.xml",
+    "https://www.tennisworldusa.org/rss/news.xml",
   ],
   basquete: [
+    // Google News
+    "https://news.google.com/rss/search?q=NBA+2026+basquete&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+    // Portais
+    "https://www.gazetaesportiva.com/feed/",
+    "https://www.lance.com.br/feed/",
+    "https://esportes.r7.com/basquete/feed.xml",
     "https://ge.globo.com/rss/basquete/",
     "https://www.espn.com.br/rss/nba/",
-    "https://www.uol.com.br/esporte/basquete/index.xml",
   ],
+};
+
+// Palavras-chave para filtrar noticias da categoria correta
+const FILTROS = {
+  futebol:  ["futebol", "brasileirao", "libertadores", "copa", "gol", "clube", "selecao", "campeonato", "serie a", "serie b", "flamengo", "palmeiras", "corinthians", "sao paulo", "atletico", "cruzeiro", "botafogo", "fluminense", "vasco", "gremio", "internacional", "champions"],
+  formula1: ["formula 1", "formula1", "f1", "gp", "grand prix", "piloto", "corrida", "verstappen", "hamilton", "ferrari", "mercedes", "red bull", "bortoleto", "senna"],
+  tenis:    ["tenis", "atp", "wta", "grand slam", "wimbledon", "roland garros", "us open", "australian open", "sinner", "djokovic", "alcaraz", "swiatek", "fonseca"],
+  basquete: ["basquete", "nba", "basketball", "playoffs", "finals", "lakers", "celtics", "warriors", "thunder", "nuggets", "knicks"],
 };
 
 // Imagens fallback por categoria (caso o RSS nao traga imagem)
@@ -125,18 +164,25 @@ function parseRSS(xml) {
         .slice(0, 500);
     }
     
-    // Imagem — tenta varios formatos
+    // Imagem — tenta varios formatos incluindo Google News
     let imagem = "";
     const imgPatterns = [
       /<media:content[^>]+url="([^"]+)"[^>]*type="image/,
       /<media:thumbnail[^>]+url="([^"]+)"/,
       /<enclosure[^>]+url="([^"]+)"[^>]*type="image/,
       /<image:url>([\s\S]*?)<\/image:url>/,
+      // Google News usa tag <figure> com img src
+      /src="(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/i,
       /url="(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/i,
+      // Qualquer URL de imagem no conteudo
+      /(https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp)(?:\?[^\s"'<>]*)?)/i,
     ];
     for (const pat of imgPatterns) {
       const m = itemXml.match(pat);
-      if (m && m[1] && m[1].startsWith("http")) { imagem = m[1]; break; }
+      if (m && m[1] && m[1].startsWith("http") && !m[1].includes("pixel") && m[1].length < 500) {
+        imagem = m[1];
+        break;
+      }
     }
 
     // Data
@@ -152,6 +198,41 @@ function parseRSS(xml) {
   return items;
 }
 
+// ── FILTRO POR CATEGORIA ─────────────────────────────────────────────────────
+function pertenceCategoria(titulo, resumo, categoria) {
+  const texto = (titulo + " " + resumo).toLowerCase();
+  const palavras = FILTROS[categoria] || [];
+  return palavras.some(p => texto.includes(p));
+}
+
+// ── BUSCA IMAGEM NO UNSPLASH ──────────────────────────────────────────────────
+async function buscarImagem(titulo, categoria) {
+  try {
+    // Palavras-chave por categoria para busca no Unsplash
+    const queries = {
+      futebol:  "soccer football stadium",
+      formula1: "formula 1 race car motorsport",
+      tenis:    "tennis court player",
+      basquete: "basketball nba court",
+    };
+    const query = encodeURIComponent(queries[categoria] || "sports");
+    const url = `https://source.unsplash.com/900x600/?${query}`;
+    // Unsplash source retorna redirect para imagem real
+    const img = await new Promise((resolve) => {
+      https.get(url, { headers: { "User-Agent": "Mozilla/5.0" } }, (res) => {
+        if (res.statusCode >= 300 && res.headers.location) {
+          resolve(res.headers.location);
+        } else {
+          resolve(url);
+        }
+      }).on("error", () => resolve(getFallbackImagem(categoria)));
+    });
+    return img;
+  } catch(e) {
+    return getFallbackImagem(categoria);
+  }
+}
+
 // ── BUSCA RSS DE TODAS AS FONTES DA CATEGORIA ─────────────────────────────────
 async function buscarRSS(categoria) {
   const fontes = FONTES[categoria] || [];
@@ -162,9 +243,12 @@ async function buscarRSS(categoria) {
       console.log(`  RSS: ${url}`);
       const xml = await httpGet(url);
       const items = parseRSS(xml);
-      console.log(`  -> ${items.length} itens`);
-      todasNoticias.push(...items);
-      if (todasNoticias.length >= 6) break; // Suficiente para o Gemini trabalhar
+      
+      // Filtrar apenas noticias que realmente pertencem a categoria
+      const filtradas = items.filter(n => pertenceCategoria(n.titulo, n.resumo, categoria));
+      console.log(`  -> ${items.length} itens, ${filtradas.length} da categoria`);
+      todasNoticias.push(...filtradas);
+      if (todasNoticias.length >= 6) break;
     } catch(e) {
       console.log(`  -> Erro: ${e.message}`);
     }
@@ -290,11 +374,14 @@ async function salvarNoticias(noticias, noticiasOriginais, categoria) {
       continue;
     }
 
-    // Usar imagem real do RSS se disponivel
+    // Usar imagem real do RSS se disponivel, senao busca no Unsplash
     const originalImg = noticiasOriginais[i]?.imagem;
-    const imagem = (originalImg && originalImg.startsWith("http"))
-      ? originalImg
-      : getFallbackImagem(categoria);
+    let imagem;
+    if (originalImg && originalImg.startsWith("http")) {
+      imagem = originalImg;
+    } else {
+      imagem = await buscarImagem(n.titulo, categoria);
+    }
 
     const { error } = await supabase.from("noticias").insert({
       titulo:     n.titulo,

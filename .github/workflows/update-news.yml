@@ -1,12 +1,15 @@
-name: Auto Update Noticias
+name: Auto Update Noticias e Jogos
 
 on:
   schedule:
+    # Noticias a cada 4 horas
     - cron: '0 */4 * * *'
+    # Jogos atualizam de hora em hora (para pegar placares ao vivo)
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:
-  update:
+  update-noticias:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codigo
@@ -20,9 +23,29 @@ jobs:
       - name: Instalar dependencias
         run: npm install @supabase/supabase-js
 
-      - name: Rodar script de atualizacao
+      - name: Atualizar noticias
         env:
           GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: node scripts/update-news.js
+
+  update-jogos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        run: npm install @supabase/supabase-js
+
+      - name: Atualizar jogos do dia
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: node scripts/update-games.js
