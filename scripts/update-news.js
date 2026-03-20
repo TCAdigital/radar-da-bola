@@ -376,6 +376,7 @@ ${lista}
 Reescreva 2 dessas noticias em portugues brasileiro jornalistico:
 - Use as informacoes reais mas com suas proprias palavras
 - Titulo criativo e impactante (diferente do original)
+- IMPORTANTE: No titulo, use letra maiuscula APENAS na primeira palavra e em nomes proprios. Exemplo correto: "Flamengo vence o Botafogo e assume liderança". Exemplo ERRADO: "Flamengo Vence o Botafogo e Assume Liderança"
 - Subtitulo de 1-2 frases resumindo
 - Conteudo com 3 paragrafos completos e informativos
 - NAO invente fatos que nao estao nas noticias originais
