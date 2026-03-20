@@ -399,8 +399,7 @@ function GamesTab({ games, setGames, showToast }) {
   };
 
   const parseCSV = (text) => {
-    const lines = text.trim().split("
-").filter(l=>l.trim());
+    const lines = text.trim().split("\n").filter(l=>l.trim());
     if(lines.length<2) return { error:"CSV precisa de cabeçalho + ao menos 1 linha." };
     const headers = lines[0].split(",").map(h=>h.trim().toLowerCase());
     const missing = ["league","home","away","time","status"].filter(r=>!headers.includes(r));
