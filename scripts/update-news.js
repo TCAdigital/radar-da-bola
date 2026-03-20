@@ -80,7 +80,7 @@ Responda APENAS com JSON valido neste formato, sem markdown, sem backticks, sem 
   
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.7, maxOutputTokens: 2000 },
+    generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
   };
 
   try {
@@ -94,8 +94,34 @@ Responda APENAS com JSON valido neste formato, sem markdown, sem backticks, sem 
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
     console.log("Resposta Gemini (primeiros 200 chars):", text.slice(0, 200));
     
-    const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    return JSON.parse(clean);
+    // Limpar backticks e espacos
+    let clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    
+    // Extrair apenas o array JSON mesmo se vier texto extra
+    const startIdx = clean.indexOf("[");
+    const endIdx   = clean.lastIndexOf("]");
+    if (startIdx !== -1 && endIdx !== -1) {
+      clean = clean.slice(startIdx, endIdx + 1);
+    }
+
+    // Tentar parsear - se falhar, tentar recuperar objetos individuais
+    try {
+      return JSON.parse(clean);
+    } catch(parseErr) {
+      console.log("JSON incompleto, tentando recuperar...");
+      // Extrair objetos JSON individuais validos
+      const results = [];
+      const objRegex = /\{[^{}]*"titulo"[^{}]*"subtitulo"[^{}]*"conteudo"[^{}]*\}/gs;
+      const matches = clean.match(objRegex) || [];
+      for (const m of matches) {
+        try {
+          const obj = JSON.parse(m);
+          if (obj.titulo && obj.conteudo) results.push(obj);
+        } catch(e2) {}
+      }
+      console.log("Recuperados:", results.length, "objetos");
+      return results;
+    }
   } catch(e) {
     console.error("Erro ao buscar noticias:", e.message);
     return [];
