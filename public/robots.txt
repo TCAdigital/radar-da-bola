@@ -1,3 +1,8 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://radardabola.com.br/sitemap.xml
+
+# Bloquear admin e instagram do Google
+Disallow: /admin
+Disallow: /instagram
