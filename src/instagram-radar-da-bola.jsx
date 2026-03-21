@@ -109,27 +109,28 @@ function FeedCanvas({ news, size=1 }) {
     grad.addColorStop(1,"rgba(0,0,0,0.92)");
     ctx.fillStyle=grad; ctx.fillRect(0,H*0.4,W,H-H*0.4);
 
-    // Linha cor do esporte
+    // Traco
     ctx.fillStyle=s.color;
-    ctx.fillRect(14,H-162,28,3);
+    ctx.fillRect(14,H-118,28,3);
 
-    // Titulo (espaco do traco)
+    // Titulo — espaco do traco
     ctx.fillStyle=B.white;
-    ctx.font="800 15px Arial";
+    ctx.font="800 14px Arial";
     ctx.shadowColor="rgba(0,0,0,0.95)"; ctx.shadowBlur=8;
-    wrapText(ctx,news.title,14,H-146,W-28,20,4);
+    wrapText(ctx,news.title,14,H-98,W-28,19,4);
     ctx.shadowBlur=0;
 
-    // Rodape cor do esporte
-    ctx.fillStyle=s.color;
-    ctx.fillRect(0,H-40,W,40);
-    ctx.fillStyle=B.white;
-    ctx.font="700 9px Arial";
-    ctx.fillText("🔗 Link na bio",14,H-14);
-    ctx.fillStyle="rgba(255,255,255,0.6)";
-    ctx.font="400 8px Arial";
+    // Rodape preto transparente
+    const gradF=ctx.createLinearGradient(0,H-44,0,H);
+    gradF.addColorStop(0,"rgba(0,0,0,0)");
+    gradF.addColorStop(1,"rgba(0,0,0,0.78)");
+    ctx.fillStyle=gradF; ctx.fillRect(0,H-44,W,44);
+    ctx.fillStyle=B.white; ctx.font="700 10px Arial";
+    ctx.fillText("🔗 Link na bio",14,H-10);
+    ctx.fillStyle="rgba(255,255,255,0.55)";
+    ctx.font="400 9px Arial";
     ctx.textAlign="right";
-    ctx.fillText(timeAgo(news.minsAgo),W-10,H-14);
+    ctx.fillText(timeAgo(news.minsAgo),W-12,H-10);
     ctx.textAlign="left";
   }, [news, imgLoaded, W, H, s]);
 
@@ -186,30 +187,34 @@ function StoryCanvas({ news, size=1 }) {
     gradS.addColorStop(1,"rgba(0,0,0,0.94)");
     ctx.fillStyle=gradS; ctx.fillRect(0,H*0.35,W,H-H*0.35);
 
-    // CATEGORIA (badge cor do esporte)
+    // CATEGORIA badge
     ctx.fillStyle=s.color;
-    const bw=84,bh=20,bx=14,by=H-215;
+    const bw=84,bh=20,bx=14,by=H-185;
     pill(ctx,bx,by,bw,bh,4); ctx.fill();
     ctx.fillStyle=B.white;
     ctx.font="800 9px Arial";
     ctx.fillText(s.emoji+" "+s.label,bx+10,by+13);
 
-    // TRACO cor do esporte
+    // TRACO
     ctx.fillStyle=s.color;
-    ctx.fillRect(14,H-185,32,3);
+    ctx.fillRect(14,H-155,32,3);
 
-    // TITULO (espaco do traco)
+    // TITULO — 18px abaixo do traco
     ctx.fillStyle=B.white;
-    ctx.font="800 16px Arial";
+    ctx.font="800 15px Arial";
     ctx.shadowColor="rgba(0,0,0,0.95)"; ctx.shadowBlur=10;
-    wrapText(ctx,news.title,14,H-168,W-28,22,4);
+    wrapText(ctx,news.title,14,H-132,W-28,21,4);
     ctx.shadowBlur=0;
 
-    // FOOTER simples
-    ctx.fillStyle="rgba(255,255,255,0.55)";
+    // FOOTER transparente
+    const gradSt=ctx.createLinearGradient(0,H-34,0,H);
+    gradSt.addColorStop(0,"rgba(0,0,0,0)");
+    gradSt.addColorStop(1,"rgba(0,0,0,0.65)");
+    ctx.fillStyle=gradSt; ctx.fillRect(0,H-34,W,34);
+    ctx.fillStyle="rgba(255,255,255,0.65)";
     ctx.font="700 9px Arial";
     ctx.textAlign="center";
-    ctx.fillText("Leia a materia completa · Link na bio",W/2,H-16);
+    ctx.fillText("Leia a materia completa · Link na bio",W/2,H-10);
     ctx.textAlign="left";
   }, [news, imgLoaded, W, H, s]);
 
@@ -273,6 +278,115 @@ export default function IGManager() {
     setPosting(id);
     setStatuses(s=>({...s,[id]:"generating"}));
     setTimeout(()=>{ setStatuses(s=>({...s,[id]:"posted"})); setPosting(null); showToast("✓ Feed + Stories publicados!"); },2400);
+  };
+
+  const downloadArte = (newsItem, tipo) => {
+    // Renderiza o canvas e faz download
+    const isFeed = tipo === "feed";
+    const W = isFeed ? 1080 : 1080;
+    const H = isFeed ? 1350 : 1920;
+    const size = isFeed ? (1080/260) : (1080/180);
+
+    const canvas = document.createElement("canvas");
+    const DPR = 1;
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+
+    const s = SPORTS[newsItem.sport] || SPORTS.futebol;
+
+    function pill(ctx,x,y,w,h,r){
+      ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+      ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+      ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+      ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+    }
+
+    function wrapText(ctx,text,x,y,maxW,lineH,maxLines){
+      const words=text.split(' ');let line='',lines=0;
+      for(let i=0;i<words.length;i++){
+        const test=line+words[i]+' ';
+        if(ctx.measureText(test).width>maxW&&i>0){
+          ctx.fillText(line.trim(),x,y);line=words[i]+' ';y+=lineH;lines++;
+          if(lines>=maxLines-1){ctx.fillText(line.trim()+(i<words.length-1?'...':''),x,y);return;}
+        }else{line=test;}
+      }
+      ctx.fillText(line.trim(),x,y);
+    }
+
+    function desenhar(img) {
+      ctx.fillStyle="#0d0d0d";
+      ctx.fillRect(0,0,W,H);
+
+      if(img){
+        const sc=Math.max(W/img.naturalWidth,H/img.naturalHeight);
+        const sw=img.naturalWidth*sc,sh=img.naturalHeight*sc;
+        ctx.drawImage(img,(W-sw)/2,(H-sh)/2,sw,sh);
+        ctx.fillStyle="rgba(0,0,0,0.38)";ctx.fillRect(0,0,W,H);
+        const tint=ctx.createLinearGradient(0,H*0.38,0,H);
+        tint.addColorStop(0,"rgba(0,0,0,0)");
+        tint.addColorStop(1,"rgba(0,0,0,0.93)");
+        ctx.fillStyle=tint;ctx.fillRect(0,0,W,H);
+      }
+
+      if(isFeed){
+        // Header
+        ctx.fillStyle=s.color;ctx.fillRect(0,0,W,44*size);
+        ctx.fillStyle="#fff";ctx.font=`800 ${12*size}px Arial Black,Arial`;
+        ctx.fillText("RADAR DA BOLA",14*size,28*size);
+        const bw=74*size,bh=20*size,bx=W-bw-10*size,by=12*size;
+        ctx.fillStyle="rgba(0,0,0,0.3)";pill(ctx,bx,by,bw,bh,4*size);ctx.fill();
+        ctx.fillStyle="#fff";ctx.font=`800 ${9*size}px Arial`;
+        ctx.textAlign="center";ctx.fillText(s.emoji+" "+s.label,bx+bw/2,by+13*size);ctx.textAlign="left";
+        // Traco
+        ctx.fillStyle=s.color;ctx.fillRect(14*size,H-118*size,28*size,3*size);
+        // Titulo
+        ctx.fillStyle="#fff";ctx.font=`800 ${14*size}px Arial`;
+        ctx.shadowColor="rgba(0,0,0,0.95)";ctx.shadowBlur=8*size;
+        wrapText(ctx,newsItem.title||newsItem.titulo,14*size,H-98*size,W-28*size,19*size,4);
+        ctx.shadowBlur=0;
+        // Rodape
+        const gf=ctx.createLinearGradient(0,H-44*size,0,H);
+        gf.addColorStop(0,"rgba(0,0,0,0)");gf.addColorStop(1,"rgba(0,0,0,0.78)");
+        ctx.fillStyle=gf;ctx.fillRect(0,H-44*size,W,44*size);
+        ctx.fillStyle="#fff";ctx.font=`700 ${10*size}px Arial`;
+        ctx.fillText("🔗 Link na bio",14*size,H-10*size);
+        ctx.fillStyle="rgba(255,255,255,0.55)";ctx.font=`400 ${9*size}px Arial`;
+        ctx.textAlign="right";ctx.fillText("@portalradardabola",W-12*size,H-10*size);ctx.textAlign="left";
+      } else {
+        // STORIES
+        const bw=84*size,bh=20*size,bx=14*size,by=H-185*size;
+        ctx.fillStyle=s.color;pill(ctx,bx,by,bw,bh,4*size);ctx.fill();
+        ctx.fillStyle="#fff";ctx.font=`800 ${9*size}px Arial`;
+        ctx.fillText(s.emoji+" "+s.label,bx+10*size,by+13*size);
+        ctx.fillStyle=s.color;ctx.fillRect(14*size,H-155*size,32*size,3*size);
+        ctx.fillStyle="#fff";ctx.font=`800 ${15*size}px Arial`;
+        ctx.shadowColor="rgba(0,0,0,0.95)";ctx.shadowBlur=10*size;
+        wrapText(ctx,newsItem.title||newsItem.titulo,14*size,H-132*size,W-28*size,21*size,4);
+        ctx.shadowBlur=0;
+        const gs=ctx.createLinearGradient(0,H-34*size,0,H);
+        gs.addColorStop(0,"rgba(0,0,0,0)");gs.addColorStop(1,"rgba(0,0,0,0.65)");
+        ctx.fillStyle=gs;ctx.fillRect(0,H-34*size,W,34*size);
+        ctx.fillStyle="rgba(255,255,255,0.65)";ctx.font=`700 ${9*size}px Arial`;
+        ctx.textAlign="center";
+        ctx.fillText("Leia a materia completa · Link na bio",W/2,H-10*size);
+        ctx.textAlign="left";
+      }
+
+      // Download
+      const link=document.createElement("a");
+      const titulo=(newsItem.title||newsItem.titulo||"noticia").slice(0,30).replace(/\s+/g,"-").toLowerCase();
+      link.download=`radar-${tipo}-${titulo}.jpg`;
+      link.href=canvas.toDataURL("image/jpeg",0.95);
+      link.click();
+      showToast(`✓ ${isFeed?"Feed":"Stories"} baixado!`);
+    }
+
+    const img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=()=>desenhar(img);
+    img.onerror=()=>desenhar(null);
+    img.src=newsItem.img||newsItem.imagem_url||"";
   };
 
   const stats = {
@@ -397,6 +511,8 @@ export default function IGManager() {
                       <div style={{ display:"flex",alignItems:"center",gap:8,flexShrink:0 }}>
                         <span style={{ background:st.bg,color:st.color,fontSize:10,fontWeight:600,padding:"4px 10px",borderRadius:20 }}>{st.icon} {st.label}</span>
                         {statuses[n.id]==="pending" && (
+                          <button onClick={()=>downloadArte(n,"feed")} title="Baixar Feed" style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"5px 10px",fontSize:11,cursor:"pointer" }}>⬇ Feed</button>
+                          <button onClick={()=>downloadArte(n,"stories")} title="Baixar Stories" style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"5px 10px",fontSize:11,cursor:"pointer" }}>⬇ Story</button>
                           <button onClick={()=>simulatePost(n.id)} disabled={!!posting} style={{ background:B.red,color:B.white,border:"none",borderRadius:5,padding:"5px 12px",fontSize:11,fontWeight:700,cursor:posting?"not-allowed":"pointer",opacity:posting?.5:1 }}>▶</button>
                         )}
                       </div>
@@ -446,6 +562,8 @@ export default function IGManager() {
                         </span>
                         <button onClick={()=>{setPreviewNews(n);setView("preview");}} style={{ background:"rgba(255,255,255,0.06)",color:"#888",border:"none",borderRadius:5,padding:"6px 10px",fontSize:11,fontWeight:600,cursor:"pointer" }}>👁 Ver</button>
                         {(statuses[n.id]==="pending"||statuses[n.id]==="error") && (
+                          <button onClick={()=>downloadArte(n,"feed")} style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"7px 10px",fontSize:11,fontWeight:600,cursor:"pointer" }}>⬇ Feed</button>
+                          <button onClick={()=>downloadArte(n,"stories")} style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"7px 10px",fontSize:11,fontWeight:600,cursor:"pointer" }}>⬇ Story</button>
                           <button onClick={()=>simulatePost(n.id)} disabled={!!posting} style={{ background:`linear-gradient(135deg,${B.redDeep},${B.red})`,color:B.white,border:"none",borderRadius:5,padding:"7px 14px",fontSize:12,fontWeight:700,cursor:posting?"not-allowed":"pointer",opacity:posting?.5:1 }}>▶ Postar</button>
                         )}
                         {statuses[n.id]==="posted" && (
@@ -495,7 +613,9 @@ export default function IGManager() {
                       <div style={{ display:"flex",gap:10 }}>
                         <button onClick={()=>showToast("Arte salva!")} style={{ flex:1,background:"rgba(255,255,255,0.06)",color:"#888",border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:700,cursor:"pointer" }}>↓ Baixar</button>
                         {(statuses[previewNews.id]==="pending"||statuses[previewNews.id]==="error") && (
-                          <button onClick={()=>simulatePost(previewNews.id)} disabled={!!posting} style={{ flex:1,background:`linear-gradient(135deg,${B.redDeep},${B.red})`,color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:800,cursor:"pointer" }}>▶ Postar agora</button>
+                          <button onClick={()=>downloadArte(previewNews,"feed")} style={{ flex:1,background:"#1a1a2e",color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:700,cursor:"pointer" }}>⬇ Feed</button>
+                      <button onClick={()=>downloadArte(previewNews,"stories")} style={{ flex:1,background:"#1a1a2e",color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:700,cursor:"pointer" }}>⬇ Stories</button>
+                      <button onClick={()=>simulatePost(previewNews.id)} disabled={!!posting} style={{ flex:1,background:`linear-gradient(135deg,${B.redDeep},${B.red})`,color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:800,cursor:"pointer" }}>▶ Postar agora</button>
                         )}
                         {statuses[previewNews.id]==="posted" && (
                           <div style={{ flex:1,background:"rgba(0,196,79,0.1)",color:"#00c44f",borderRadius:7,padding:10,fontSize:12,fontWeight:700,textAlign:"center" }}>✓ Já publicado</div>
