@@ -336,8 +336,9 @@ function CopaCountdown() {
 function HomePage({ onArticle }) {
   var [tab, setTab]       = useState("inicio");
   var [news, setNews]     = useState([]);
-  var [games, setGames]   = useState([]);
-  var [loading, setLoading] = useState(true);
+  var [games, setGames]       = useState([]);
+  var [gamesAmanha, setGamesAmanha] = useState([]);
+  var [loading, setLoading]     = useState(true);
 
   var tabs     = ["inicio","futebol","formula1","tenis","basquete","jogos","amanha"];
   var horaBR = ((new Date().getUTCHours() - 3) + 24) % 24;
