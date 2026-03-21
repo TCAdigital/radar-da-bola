@@ -146,16 +146,11 @@ function getStatusTheSports(e) {
 
 async function main() {
   console.log("=== Radar da Bola - Update Jogos ===");
-  // Apos 23h Brasilia (UTC-3), buscar jogos de amanha
-  var agora = new Date();
-  var horaBrasilia = ((agora.getUTCHours() - 3) + 24) % 24;
-  var dataJogos = new Date();
-  if (horaBrasilia >= 23) {
-    dataJogos.setDate(dataJogos.getDate() + 1);
-    console.log("Apos 23h - buscando jogos de AMANHA");
-  }
-  const hoje = dataJogos.toISOString().split("T")[0];
-  console.log("Data alvo:", hoje);
+  // Sempre busca hoje E amanha
+  const hoje = new Date().toISOString().split("T")[0];
+  var amanhaDate = new Date(); amanhaDate.setDate(amanhaDate.getDate()+1);
+  const amanha = amanhaDate.toISOString().split("T")[0];
+  console.log("Buscando jogos para:", hoje, "e", amanha);
 
   if (!SUPABASE_URL || !SUPABASE_KEY) { console.error("Supabase vars faltando!"); process.exit(1); }
   if (!FOOTBALL_API_KEY) { console.error("FOOTBALL_API_KEY faltando!"); process.exit(1); }

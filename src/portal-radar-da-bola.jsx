@@ -339,10 +339,10 @@ function HomePage({ onArticle }) {
   var [games, setGames]   = useState([]);
   var [loading, setLoading] = useState(true);
 
-  var tabs     = ["inicio","futebol","formula1","tenis","basquete","jogos"];
+  var tabs     = ["inicio","futebol","formula1","tenis","basquete","jogos","amanha"];
   var horaBR = ((new Date().getUTCHours() - 3) + 24) % 24;
-  var tabLabel = { inicio:"Inicio", futebol:"Futebol", formula1:"Formula 1", tenis:"Tenis", basquete:"Basquete", jogos: horaBR >= 23 ? "Jogos de Amanha" : "Jogos de Hoje" };
-  var navColor = { inicio:BRAND.red, futebol:META.futebol.color, formula1:META.formula1.color, tenis:META.tenis.color, basquete:META.basquete.color, jogos:BRAND.red };
+  var tabLabel = { inicio:"Inicio", futebol:"Futebol", formula1:"Formula 1", tenis:"Tenis", basquete:"Basquete", jogos:"Jogos de Hoje", amanha:"Jogos de Amanha" };
+  var navColor = { inicio:BRAND.red, futebol:META.futebol.color, formula1:META.formula1.color, tenis:META.tenis.color, basquete:META.basquete.color, jogos:BRAND.red, amanha:"#1a56db" };
 
   useEffect(function(){
     function load() {
@@ -352,16 +352,13 @@ function HomePage({ onArticle }) {
         setLoading(false);
       });
 
-      // Apos 23h (Brasilia UTC-3), mostrar jogos de amanha
-      var agora = new Date();
-      var horaBrasilia = ((agora.getUTCHours() - 3) + 24) % 24;
-      var dataJogos = new Date();
-      if (horaBrasilia >= 23) {
-        dataJogos.setDate(dataJogos.getDate() + 1);
-      }
-      var dataStr = dataJogos.toISOString().split("T")[0];
-      supabase.from("jogos").select("*").eq("data_jogo", dataStr).order("time",{ascending:true}).then(function(res){
-        setGames(res.data||[]);
+      var hoje = new Date().toISOString().split("T")[0];
+      var amanhaDate = new Date(); amanhaDate.setDate(amanhaDate.getDate()+1);
+      var amanha = amanhaDate.toISOString().split("T")[0];
+      supabase.from("jogos").select("*").in("data_jogo",[hoje,amanha]).order("time",{ascending:true}).then(function(res){
+        var todos = res.data||[];
+        setGames(todos.filter(function(g){ return g.data_jogo===hoje; }));
+        setGamesAmanha(todos.filter(function(g){ return g.data_jogo===amanha; }));
       });
     }
     load();
@@ -369,7 +366,7 @@ function HomePage({ onArticle }) {
     return function(){ clearInterval(interval); };
   },[]);
 
-  var filtered = tab==="inicio" ? news : (tab==="jogos" ? [] : news.filter(function(n){ return n.categoria===tab; }));
+  var filtered = tab==="inicio" ? news : (tab==="jogos"||tab==="amanha" ? [] : news.filter(function(n){ return n.categoria===tab; }));
   var hero   = filtered[0];
   var medium = filtered.slice(1,4);
   var rest   = filtered.slice(4);
@@ -408,14 +405,21 @@ function HomePage({ onArticle }) {
       <div style={{ maxWidth:1400, margin:"0 auto", padding:"28px" }}>
         <AdSlot h={90} label="Publicidade Leaderboard 728x90" />
 
-        {tab==="jogos" ? (
+        {(tab==="jogos"||tab==="amanha") ? (
           <div>
             <div style={{ marginBottom:16 }}>
-              <h2 style={{ fontSize:20, fontWeight:800, color:"#111", margin:"0 0 4px" }}>Jogos de Hoje e Amanhã</h2>
-              <p style={{ fontSize:13, color:"#888", margin:0 }}>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</p>
+              <h2 style={{ fontSize:20, fontWeight:800, color:"#111", margin:"0 0 4px" }}>
+                {tab==="amanha" ? "Jogos de Amanhã" : "Jogos de Hoje"}
+              </h2>
+              <p style={{ fontSize:13, color:"#888", margin:0 }}>
+                {tab==="amanha"
+                  ? new Date(new Date().setDate(new Date().getDate()+1)).toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})
+                  : new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})
+                }
+              </p>
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:32 }}>
-              <TodayGames games={games} />
+              <TodayGames games={tab==="amanha" ? gamesAmanha : games} />
               <aside>
                 <AdSlot h={250} label="300x250" />
                 <AdSlot h={600} label="300x600" />
