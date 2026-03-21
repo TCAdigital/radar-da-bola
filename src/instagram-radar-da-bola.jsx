@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect, useRef, useCallback } from "react";
+import { supabase } from "./supabaseClient";
 
 const B = {
   black:"#0d0d0d", dark:"#1a1a1a", darker:"#111111",
@@ -14,19 +15,9 @@ const SPORTS = {
   basquete: { color:"#e65c00", label:"BASQUETE",  emoji:"🏀" },
 };
 
-const NEWS = [
-  { id:"f1", sport:"futebol",  minsAgo:40,  title:"Palmeiras e Flamengo são campeões estaduais no maior fim de semana do futebol brasileiro", summary:"Palmeiras levou o Paulistão e Flamengo bateu o Fluminense nos pênaltis.", img:"https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=900&q=80" },
-  { id:"f2", sport:"futebol",  minsAgo:95,  title:"Leonardo Jardim estreia no Flamengo com título carioca nos pênaltis contra o Fluminense", summary:"Técnico português assumiu o Mengão e na primeira decisão já levantou a taça.", img:"https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=900&q=80" },
-  { id:"f3", sport:"futebol",  minsAgo:180, title:"Copa do Mundo 2026: Brasil inicia contagem regressiva para o torneio que volta às Américas", summary:"Ingressos esgotam em tempo recorde enquanto Seleção finaliza preparação.", img:"https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=900&q=80" },
-  { id:"r1", sport:"formula1", minsAgo:28,  title:"Russell vence GP da Austrália e Mercedes domina abertura da nova era da F1 2026", summary:"Dobradinha da Mercedes em Melbourne. Antonelli foi segundo e Leclerc com o terceiro.", img:"https://images.unsplash.com/photo-1518364538800-6bae3c2ea0f2?w=900&q=80" },
-  { id:"r2", sport:"formula1", minsAgo:120, title:"Bortoleto estreia na F1 e celebra primeiro ponto na carreira: 'Mais do que esperava'", summary:"O brasileiro da Audi cruzou a linha dentro do top-10 em Melbourne.", img:"https://images.unsplash.com/photo-1541348263662-e068662d82af?w=900&q=80" },
-  { id:"t1", sport:"tenis",    minsAgo:15,  title:"HOJE ÀS 22H: João Fonseca enfrenta Sinner pelas oitavas de final de Indian Wells", summary:"O prodígio carioca de 19 anos faz história ao chegar às oitavas pela primeira vez.", img:"https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=900&q=80" },
-  { id:"t2", sport:"tenis",    minsAgo:72,  title:"Fonseca atropela Tommy Paul com 6/2 e 6/3 e faz história em Indian Wells", summary:"Em 82 minutos, brasileiro se torna o 4º mais jovem em oitavas de Masters 1000.", img:"https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=900&q=80" },
-  { id:"b1", sport:"basquete", minsAgo:18,  title:"SGA iguala Wilt Chamberlain com 126 jogos seguidos acima de 20 pontos na NBA", summary:"Astro do Thunder empatou recorde mítico com game-winner no fim.", img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900&q=80" },
-  { id:"b2", sport:"basquete", minsAgo:90,  title:"Thunder é o primeiro time a 50 vitórias na NBA 2025/26 e consolida favoritismo", summary:"Com campanha de 50-15, Oklahoma City manda recado: o caminho ao título passa por aqui.", img:"https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=900&q=80" },
-];
+const NEWS = [];
 
-const INIT_STATUS = { f1:"posted", f2:"posted", f3:"pending", r1:"posted", r2:"pending", t1:"pending", t2:"pending", b1:"posted", b2:"pending" };
+const INIT_STATUS = {};
 
 function timeAgo(m) {
   if (m < 60) return `${m}min atrás`;
@@ -238,12 +229,42 @@ function StoryCanvas({ news, size=1 }) {
 // ── APP ───────────────────────────────────────────────────────────────────────
 export default function IGManager() {
   const [view,        setView]       = useState("dashboard");
+  const [news,        setNews]       = useState([]);
   const [statuses,    setStatuses]   = useState(INIT_STATUS);
-  const [previewNews, setPreviewNews]= useState(NEWS[0]);
+  const [previewNews, setPreviewNews]= useState(null);
   const [igConnected, setIgConnected]= useState(false);
   const [posting,     setPosting]    = useState(null);
   const [toast,       setToast]      = useState(null);
+  const [loadingNews, setLoadingNews]= useState(true);
   const [caption,     setCaption]    = useState("📰 {titulo}\n\n{resumo}\n\n🔗 Link na bio para a matéria completa!\n\n#{esporte} #esportes #portalradardabola #noticias #brasil");
+
+  // Carregar noticias do Supabase
+  useEffect(() => {
+    supabase
+      .from("noticias")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(30)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const mapped = data.map(n => ({
+            id:       n.id,
+            sport:    n.categoria,
+            minsAgo:  Math.floor((Date.now() - new Date(n.created_at)) / 60000),
+            title:    n.titulo,
+            summary:  n.subtitulo,
+            img:      n.imagem_url,
+          }));
+          setNews(mapped);
+          setPreviewNews(mapped[0]);
+          // Inicializar statuses como pending para todas
+          const s = {};
+          mapped.forEach(n => { s[n.id] = "pending"; });
+          setStatuses(s);
+        }
+        setLoadingNews(false);
+      });
+  }, []);
 
   const showToast = (msg,ok=true) => { setToast({msg,ok}); setTimeout(()=>setToast(null),3000); };
 
@@ -257,7 +278,7 @@ export default function IGManager() {
   const stats = {
     posted:  Object.values(statuses).filter(s=>s==="posted").length,
     pending: Object.values(statuses).filter(s=>s==="pending").length,
-    total:   NEWS.length,
+    total:   news.length,
   };
 
   const ST = {
@@ -358,7 +379,7 @@ export default function IGManager() {
                   <span style={{ fontWeight:700,fontSize:13 }}>Últimas notícias</span>
                   <button onClick={()=>setView("queue")} style={{ background:"none",border:"none",color:B.red,fontSize:12,fontWeight:700,cursor:"pointer" }}>Ver todas →</button>
                 </div>
-                {NEWS.slice(0,5).map((n,i)=>{
+                {news.slice(0,5).map((n,i)=>{
                   const sp=SPORTS[n.sport];
                   const st=ST[statuses[n.id]]||ST.pending;
                   return (
@@ -403,7 +424,7 @@ export default function IGManager() {
               <h1 style={{ fontSize:22,fontWeight:800,margin:"0 0 4px" }}>Fila de posts</h1>
               <p style={{ color:"#444",fontSize:13,margin:"0 0 20px" }}>Feed + Stories · Layout 1 Clássico · Postagem imediata</p>
               <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
-                {NEWS.map(n=>{
+                {news.map(n=>{
                   const sp=SPORTS[n.sport];
                   const st=ST[statuses[n.id]]||ST.pending;
                   return (
@@ -446,7 +467,7 @@ export default function IGManager() {
 
               {/* Seletor */}
               <div style={{ background:"#111",borderRadius:8,padding:"12px 16px",border:`1px solid ${B.border}`,marginBottom:20,display:"flex",gap:8,overflowX:"auto" }}>
-                {NEWS.map(n=>(
+                {news.map(n=>(
                   <button key={n.id} onClick={()=>setPreviewNews(n)} style={{ background:previewNews?.id===n.id?B.red:"rgba(255,255,255,0.06)",color:previewNews?.id===n.id?B.white:"#666",border:"none",borderRadius:5,padding:"6px 11px",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0 }}>
                     {SPORTS[n.sport].emoji} {n.id.toUpperCase()}
                   </button>
@@ -487,7 +508,7 @@ export default function IGManager() {
                   <div style={{ borderTop:`1px solid ${B.border}`,paddingTop:20 }}>
                     <div style={{ fontWeight:700,fontSize:11,color:"#333",letterSpacing:1,marginBottom:14 }}>TODAS · FEED</div>
                     <div style={{ display:"flex",gap:14,overflowX:"auto",paddingBottom:8 }}>
-                      {NEWS.map(n=>(
+                      {news.map(n=>(
                         <div key={n.id} onClick={()=>setPreviewNews(n)} style={{ cursor:"pointer",opacity:previewNews.id===n.id?1:0.45,transition:"opacity 0.2s",flexShrink:0 }}>
                           <FeedCanvas news={n} size={0.5} />
                           <div style={{ marginTop:5,fontSize:9,color:"#444",textAlign:"center",fontWeight:700 }}>{SPORTS[n.sport].emoji}</div>
