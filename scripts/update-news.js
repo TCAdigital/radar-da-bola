@@ -471,15 +471,20 @@ async function salvarNoticias(noticias, noticiasOriginais, categoria) {
 }
 
 async function limparNoticiasAntigas() {
-  const { data } = await supabase
-    .from("noticias")
-    .select("id")
-    .order("created_at", { ascending: false });
+  // Manter 50 noticias por categoria
+  const categorias = ["futebol", "formula1", "tenis", "basquete"];
+  for (const cat of categorias) {
+    const { data } = await supabase
+      .from("noticias")
+      .select("id")
+      .eq("categoria", cat)
+      .order("created_at", { ascending: false });
 
-  if (data && data.length > 60) {
-    const ids = data.slice(60).map(n => n.id);
-    await supabase.from("noticias").delete().in("id", ids);
-    console.log("Removidas", ids.length, "noticias antigas");
+    if (data && data.length > 50) {
+      const ids = data.slice(50).map(n => n.id);
+      await supabase.from("noticias").delete().in("id", ids);
+      console.log("Removidas", ids.length, "noticias antigas de", cat);
+    }
   }
 }
 
