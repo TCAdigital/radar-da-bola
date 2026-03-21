@@ -56,7 +56,9 @@ function getStatus(match) {
 
 async function buscarJogosLiga(liga) {
   const hoje = new Date().toISOString().split("T")[0];
-  const url = `https://api.football-data.org/v4/competitions/${liga.code}/matches?dateFrom=${hoje}&dateTo=${hoje}`;
+  var amanha = new Date(); amanha.setDate(amanha.getDate()+1);
+  var amanhaStr = amanha.toISOString().split("T")[0];
+  const url = `https://api.football-data.org/v4/competitions/${liga.code}/matches?dateFrom=${hoje}&dateTo=${amanhaStr}`;
 
   try {
     const data = await httpGet(url, { "X-Auth-Token": FOOTBALL_API_KEY });
@@ -84,7 +86,7 @@ async function buscarJogosLiga(liga) {
       prob_home:    null,
       prob_draw:    null,
       prob_away:    null,
-      data_jogo:    hoje,
+      data_jogo:    m.utcDate ? m.utcDate.split("T")[0] : hoje,
       extra:        m.stage || m.group || null,
       home_logo:    m.homeTeam?.crest || null,
       away_logo:    m.awayTeam?.crest || null,
@@ -144,15 +146,25 @@ function getStatusTheSports(e) {
 
 async function main() {
   console.log("=== Radar da Bola - Update Jogos ===");
-  const hoje = new Date().toISOString().split("T")[0];
-  console.log("Data:", hoje);
+  // Apos 23h Brasilia (UTC-3), buscar jogos de amanha
+  var agora = new Date();
+  var horaBrasilia = ((agora.getUTCHours() - 3) + 24) % 24;
+  var dataJogos = new Date();
+  if (horaBrasilia >= 23) {
+    dataJogos.setDate(dataJogos.getDate() + 1);
+    console.log("Apos 23h - buscando jogos de AMANHA");
+  }
+  const hoje = dataJogos.toISOString().split("T")[0];
+  console.log("Data alvo:", hoje);
 
   if (!SUPABASE_URL || !SUPABASE_KEY) { console.error("Supabase vars faltando!"); process.exit(1); }
   if (!FOOTBALL_API_KEY) { console.error("FOOTBALL_API_KEY faltando!"); process.exit(1); }
 
   // Limpar jogos de hoje
-  await supabase.from("jogos").delete().eq("data_jogo", hoje);
-  console.log("Jogos limpos, buscando...\n");
+  var amanha2 = new Date(); amanha2.setDate(amanha2.getDate()+1);
+  var amanhaStr2 = amanha2.toISOString().split("T")[0];
+  await supabase.from("jogos").delete().in("data_jogo", [hoje, amanhaStr2]);
+  console.log("Jogos de hoje e amanha limpos, buscando...\n");
 
   const todosJogos = [];
 

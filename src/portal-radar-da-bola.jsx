@@ -340,18 +340,27 @@ function HomePage({ onArticle }) {
   var [loading, setLoading] = useState(true);
 
   var tabs     = ["inicio","futebol","formula1","tenis","basquete","jogos"];
-  var tabLabel = { inicio:"Inicio", futebol:"Futebol", formula1:"Formula 1", tenis:"Tenis", basquete:"Basquete", jogos:"Jogos de Hoje" };
+  var horaBR = ((new Date().getUTCHours() - 3) + 24) % 24;
+  var tabLabel = { inicio:"Inicio", futebol:"Futebol", formula1:"Formula 1", tenis:"Tenis", basquete:"Basquete", jogos: horaBR >= 23 ? "Jogos de Amanha" : "Jogos de Hoje" };
   var navColor = { inicio:BRAND.red, futebol:META.futebol.color, formula1:META.formula1.color, tenis:META.tenis.color, basquete:META.basquete.color, jogos:BRAND.red };
 
   useEffect(function(){
     function load() {
       setLoading(true);
-      var today = new Date().toISOString().split("T")[0];
       supabase.from("noticias").select("*").order("created_at",{ascending:false}).limit(20).then(function(res){
         setNews(res.data||[]);
         setLoading(false);
       });
-      supabase.from("jogos").select("*").eq("data_jogo",today).then(function(res){
+
+      // Apos 23h (Brasilia UTC-3), mostrar jogos de amanha
+      var agora = new Date();
+      var horaBrasilia = ((agora.getUTCHours() - 3) + 24) % 24;
+      var dataJogos = new Date();
+      if (horaBrasilia >= 23) {
+        dataJogos.setDate(dataJogos.getDate() + 1);
+      }
+      var dataStr = dataJogos.toISOString().split("T")[0];
+      supabase.from("jogos").select("*").eq("data_jogo", dataStr).order("time",{ascending:true}).then(function(res){
         setGames(res.data||[]);
       });
     }
@@ -402,7 +411,7 @@ function HomePage({ onArticle }) {
         {tab==="jogos" ? (
           <div>
             <div style={{ marginBottom:16 }}>
-              <h2 style={{ fontSize:20, fontWeight:800, color:"#111", margin:"0 0 4px" }}>Jogos de Hoje</h2>
+              <h2 style={{ fontSize:20, fontWeight:800, color:"#111", margin:"0 0 4px" }}>Jogos de Hoje e Amanhã</h2>
               <p style={{ fontSize:13, color:"#888", margin:0 }}>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</p>
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:32 }}>
