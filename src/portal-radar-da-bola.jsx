@@ -209,6 +209,7 @@ function TodayGames({ games }) {
 }
 
 function ArticlePage({ news, onBack, allNews }) {
+  var isMobile = useIsMobile();
   useEffect(function(){ window.scrollTo(0,0); },[]);
   var m = META[news.categoria] || META.futebol;
   var related = allNews.filter(function(n){ return n.categoria===news.categoria && n.id!==news.id; }).slice(0,3);
