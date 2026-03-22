@@ -615,9 +615,11 @@ export default function IGManager() {
                       <div style={{ display:"flex",gap:10 }}>
                         <button onClick={()=>showToast("Arte salva!")} style={{ flex:1,background:"rgba(255,255,255,0.06)",color:"#888",border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:700,cursor:"pointer" }}>↓ Baixar</button>
                         {(statuses[previewNews.id]==="pending"||statuses[previewNews.id]==="error") && (
+                          <>
                           <button onClick={()=>downloadArte(previewNews,"feed")} style={{ flex:1,background:"#1a1a2e",color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:700,cursor:"pointer" }}>⬇ Feed</button>
-                      <button onClick={()=>downloadArte(previewNews,"stories")} style={{ flex:1,background:"#1a1a2e",color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:700,cursor:"pointer" }}>⬇ Stories</button>
-                      <button onClick={()=>simulatePost(previewNews.id)} disabled={!!posting} style={{ flex:1,background:`linear-gradient(135deg,${B.redDeep},${B.red})`,color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:800,cursor:"pointer" }}>▶ Postar agora</button>
+                          <button onClick={()=>downloadArte(previewNews,"stories")} style={{ flex:1,background:"#1a1a2e",color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:700,cursor:"pointer" }}>⬇ Stories</button>
+                          <button onClick={()=>simulatePost(previewNews.id)} disabled={!!posting} style={{ flex:1,background:`linear-gradient(135deg,${B.redDeep},${B.red})`,color:B.white,border:"none",borderRadius:7,padding:10,fontSize:12,fontWeight:800,cursor:"pointer" }}>▶ Postar agora</button>
+                          </>
                         )}
                         {statuses[previewNews.id]==="posted" && (
                           <div style={{ flex:1,background:"rgba(0,196,79,0.1)",color:"#00c44f",borderRadius:7,padding:10,fontSize:12,fontWeight:700,textAlign:"center" }}>✓ Já publicado</div>
