@@ -217,7 +217,7 @@ function ArticlePage({ news, onBack, allNews }) {
           <span style={{ color:"rgba(255,255,255,0.5)", fontSize:13 }}>● {timeAgo(news.created_at)}</span>
         </div>
       </div>
-      <div style={{ maxWidth:1000, margin:"0 auto", padding:"0 28px" }}>
+      <div style={{ maxWidth:1000, margin:"0 auto", padding:isMobile?"0 8px":"0 28px" }}>
         <AdSlot h={90} label="Publicidade" />
         <div style={{ background:"#fff", borderRadius:8, padding:"16px 20px", marginBottom:14, border:"1px solid #e0e0e0" }}>
           <ShareButtons article={news} />
@@ -246,7 +246,7 @@ function ArticlePage({ news, onBack, allNews }) {
               <div style={{ width:4, height:18, background:m.color, borderRadius:2 }} />
               <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:"#111" }}>Mais {(META[news.categoria]||META.futebol).label}</h3>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
+            <div style={{ display:"grid", gridTemplateColumns:isMobile?"1fr 1fr":"repeat(3,1fr)", gap:isMobile?12:20 }} className="rdb-cards-grid">
               {related.map(function(n){ return <MediumCard key={n.id} news={n} onClick={function(){}} />; })}
             </div>
           </div>
@@ -264,7 +264,7 @@ function NewsTicker({ news }) {
   const m = { futebol:META.futebol, formula1:META.formula1, tenis:META.tenis, basquete:META.basquete };
   return (
     <div style={{ background:"#111", borderBottom:"2px solid #222", overflow:"hidden", height:36, display:"flex", alignItems:"center" }}>
-      <div style={{ maxWidth:1400, margin:"0 auto", width:"100%", display:"flex", alignItems:"center", padding:"0 28px" }}>
+      <div style={{ maxWidth:1400, margin:"0 auto", width:"100%", display:"flex", alignItems:"center", padding:isMobile?"0 8px":"0 28px" }}>
       <div style={{ background:BRAND.red, color:"#fff", fontSize:10, fontWeight:800, padding:"6px 14px", display:"flex", alignItems:"center", letterSpacing:1, whiteSpace:"nowrap", flexShrink:0, borderRadius:3 }}>
         EM ALTA 🔥
       </div>
@@ -307,7 +307,7 @@ function CopaCountdown() {
   },[]);
   return (
     <div style={{ background:"linear-gradient(135deg, #009c3b 0%, #006428 50%, #009c3b 100%)", padding:"10px 0" }}>
-    <div style={{ maxWidth:1400, margin:"0 auto", padding:"0 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+    <div style={{ maxWidth:1400, margin:"0 auto", padding:isMobile?"0 8px":"0 28px", display:"flex", alignItems:"center", justifyContent:isMobile?"center":"space-between", flexWrap:"wrap", gap:isMobile?8:12, textAlign:isMobile?"center":"left" }}>
       <div style={{ display:"flex", alignItems:"center", gap:12 }}>
         <span style={{ fontSize:22 }}>🌍</span>
         <div>
@@ -375,7 +375,7 @@ function HomePage({ onArticle }) {
   return (
     <div style={{ background:"#f5f5f5", minHeight:"100vh", fontFamily:"'Arial','Helvetica',sans-serif" }}>
       <header style={{ background:BRAND.red, position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 8px rgba(0,0,0,0.2)" }}>
-        <div style={{ maxWidth:1400, margin:"0 auto", padding:"0 28px" }}>
+        <div style={{ maxWidth:1400, margin:"0 auto", padding:isMobile?"0 8px":"0 28px" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", height:62 }}>
             <div style={{ fontFamily:"'Arial Black','Arial',sans-serif", fontWeight:900, fontSize:20, color:"#fff", letterSpacing:-0.5 }}>
               RADAR <span style={{ color:"rgba(255,255,255,0.7)" }}> DA </span> BOLA
@@ -388,7 +388,7 @@ function HomePage({ onArticle }) {
               </span>
             </div>
           </div>
-          <nav style={{ display:"flex", overflowX:"auto", borderTop:"1px solid rgba(255,255,255,0.2)" }}>
+          <nav style={{ display:"flex", overflowX:"auto", borderTop:"1px solid rgba(255,255,255,0.2)" }} className="rdb-nav">
             {tabs.map(function(t){
               return (
                 <button key={t} onClick={function(){ setTab(t); }} style={{ background:"none", border:"none", borderBottom:tab===t?"3px solid #fff":"3px solid transparent", color:tab===t?"#fff":"rgba(255,255,255,0.65)", padding:"12px 20px", fontSize:13, fontWeight:tab===t?700:400, cursor:"pointer", whiteSpace:"nowrap", transition:"all 0.15s" }}>
@@ -403,7 +403,7 @@ function HomePage({ onArticle }) {
       <NewsTicker news={news} />
       <CopaCountdown />
 
-      <div style={{ maxWidth:1400, margin:"0 auto", padding:"28px" }}>
+      <div style={{ maxWidth:1400, margin:"0 auto", padding:isMobile?"14px":"28px" }}>
         <AdSlot h={90} label="Publicidade Leaderboard 728x90" />
 
         {(tab==="jogos"||tab==="amanha") ? (
@@ -419,16 +419,16 @@ function HomePage({ onArticle }) {
                 }
               </p>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:32 }}>
+            <div style={{ display:"grid", gridTemplateColumns:isMobile?"1fr":"1fr 320px", gap:isMobile?16:32 }}>
               <TodayGames games={tab==="amanha" ? gamesAmanha : games} />
-              <aside>
+              <aside style={{ display:isMobile?"none":"block" }}>
                 <AdSlot h={250} label="300x250" />
                 <AdSlot h={600} label="300x600" />
               </aside>
             </div>
           </div>
         ) : (
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:32 }}>
+          <div style={{ display:"grid", gridTemplateColumns:isMobile?"1fr":"1fr 320px", gap:isMobile?16:32 }}>
             <div>
               {loading ? (
                 <div style={{ background:"#fff", borderRadius:8, padding:60, textAlign:"center", color:"#aaa", border:"1px solid #e0e0e0" }}>
@@ -443,7 +443,7 @@ function HomePage({ onArticle }) {
                   )}
                   <AdSlot h={90} label="Publicidade In-Feed" />
                   {medium.length>0 && (
-                    <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20, margin:"16px 0" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:isMobile?"1fr 1fr":"repeat(3,1fr)", gap:isMobile?12:20, margin:"16px 0" }}>
                       {medium.map(function(n){ return <MediumCard key={n.id} news={n} onClick={onArticle} />; })}
                     </div>
                   )}
@@ -455,7 +455,7 @@ function HomePage({ onArticle }) {
                 </div>
               )}
             </div>
-            <aside>
+            <aside style={{ display:isMobile?"none":"block" }}>
               <AdSlot h={250} label="300x250" />
               <div style={{ background:"#fff", borderRadius:10, padding:"18px", border:"1px solid #e0e0e0", marginTop:16, boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
@@ -507,7 +507,27 @@ function HomePage({ onArticle }) {
         <p style={{ color:"rgba(255,255,255,0.25)", fontSize:12, margin:0 }}>2026 radardabola.com.br - Esportes em tempo real</p>
       </footer>
 
-      <style>{"@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}"}</style>
+      <style>{`
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+        @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+        @media(max-width:768px){
+          .rdb-main-grid{grid-template-columns:1fr !important;}
+          .rdb-cards-grid{grid-template-columns:1fr 1fr !important; gap:12px !important;}
+          .rdb-sidebar{display:none !important;}
+          .rdb-hero{height:260px !important;}
+          .rdb-hero-text{padding:16px !important;}
+          .rdb-hero-title{font-size:18px !important;}
+          .rdb-padding{padding:14px !important;}
+          .rdb-copa{flex-direction:column !important; gap:8px !important; text-align:center;}
+          .rdb-copa-timer{justify-content:center !important;}
+          .rdb-ticker-label{display:none !important;}
+          .rdb-nav{padding:0 14px !important;}
+          .rdb-nav button{padding:10px 12px !important; font-size:12px !important;}
+        }
+        @media(max-width:480px){
+          .rdb-cards-grid{grid-template-columns:1fr !important;}
+        }
+      `}</style>
     </div>
   );
 }
