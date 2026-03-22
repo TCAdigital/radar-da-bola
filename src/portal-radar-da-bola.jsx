@@ -131,49 +131,45 @@ function ProbBar({ home, away, draw, color }) {
 }
 
 function GameCard({ game }) {
+  var isMobile   = useIsMobile();
   var isLive     = game.status === "live";
   var isFinished = game.status === "finished";
   var hasScore   = game.score_home !== null && game.score_home !== undefined;
   var color      = game.league_color || "#333";
   return (
-    <div style={{ background:"#fff", borderRadius:8, padding:"12px 16px", border:"1px solid #e8e8e8", borderLeft:"3px solid "+(isLive?"#e8002d":color), opacity:isFinished?0.75:1 }}>
+    <div style={{ background:"#fff", borderRadius:8, padding:isMobile?"10px 12px":"12px 16px", border:"1px solid #e8e8e8", borderLeft:"3px solid "+(isLive?"#e8002d":color), opacity:isFinished?0.75:1, overflow:"hidden" }}>
       {game.extra && <div style={{ fontSize:10, color:"#bbb", marginBottom:6 }}>{game.extra}</div>}
-      <div style={{ display:"grid", gridTemplateColumns:"1fr auto 1fr", alignItems:"center", gap:8 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-          {game.home_logo && <img src={game.home_logo} alt="" style={{ width:24, height:24, objectFit:"contain" }} onError={function(e){e.target.style.display="none"}} />}
-          <span style={{ fontSize:13, fontWeight:700, color:"#111", lineHeight:1.3 }}>{game.home}</span>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr auto 1fr", alignItems:"center", gap:isMobile?4:8 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:isMobile?4:8, minWidth:0 }}>
+          {game.home_logo && !isMobile && <img src={game.home_logo} alt="" style={{ width:22, height:22, objectFit:"contain", flexShrink:0 }} onError={function(e){e.target.style.display="none"}} />}
+          <span style={{ fontSize:isMobile?11:13, fontWeight:700, color:"#111", lineHeight:1.3, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{game.home}</span>
         </div>
-        <div style={{ textAlign:"center", minWidth:80 }}>
+        <div style={{ textAlign:"center", minWidth:isMobile?60:80, flexShrink:0 }}>
           {isLive ? (
-            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:4, background:"rgba(232,0,45,0.08)", borderRadius:20, padding:"2px 8px" }}>
-                <div style={{ width:6, height:6, borderRadius:"50%", background:"#e8002d", animation:"blink 1s infinite" }} />
-                <span style={{ fontSize:9, fontWeight:800, color:"#e8002d" }}>AO VIVO</span>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:3, background:"rgba(232,0,45,0.08)", borderRadius:20, padding:"2px 6px" }}>
+                <div style={{ width:5, height:5, borderRadius:"50%", background:"#e8002d", animation:"blink 1s infinite" }} />
+                <span style={{ fontSize:8, fontWeight:800, color:"#e8002d" }}>AO VIVO</span>
               </div>
-              {hasScore && <span style={{ fontSize:18, fontWeight:900, color:"#111" }}>{game.score_home} - {game.score_away}</span>}
+              {hasScore && <span style={{ fontSize:isMobile?15:18, fontWeight:900, color:"#111" }}>{game.score_home} - {game.score_away}</span>}
             </div>
           ) : isFinished && hasScore ? (
             <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
-              <span style={{ fontSize:18, fontWeight:900, color:"#111" }}>{game.score_home} - {game.score_away}</span>
-              <span style={{ fontSize:9, color:"#aaa", fontWeight:600, letterSpacing:0.5 }}>ENCERRADO</span>
+              <span style={{ fontSize:isMobile?15:18, fontWeight:900, color:"#111" }}>{game.score_home} - {game.score_away}</span>
+              <span style={{ fontSize:8, color:"#aaa", fontWeight:600, letterSpacing:0.5 }}>ENCERRADO</span>
             </div>
           ) : (
             <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
-              <span style={{ fontSize:12, color:"#999", fontWeight:600 }}>{game.time}</span>
-              <span style={{ fontSize:11, color:"#ccc" }}>x</span>
+              <span style={{ fontSize:isMobile?11:12, color:"#999", fontWeight:600 }}>{game.time}</span>
+              <span style={{ fontSize:10, color:"#ccc" }}>x</span>
             </div>
           )}
         </div>
-        <div style={{ display:"flex", alignItems:"center", gap:8, justifyContent:"flex-end" }}>
-          <span style={{ fontSize:13, fontWeight:700, color:"#111", lineHeight:1.3, textAlign:"right" }}>{game.away}</span>
-          {game.away_logo && <img src={game.away_logo} alt="" style={{ width:24, height:24, objectFit:"contain" }} onError={function(e){e.target.style.display="none"}} />}
+        <div style={{ display:"flex", alignItems:"center", gap:isMobile?4:8, justifyContent:"flex-end", minWidth:0 }}>
+          <span style={{ fontSize:isMobile?11:13, fontWeight:700, color:"#111", lineHeight:1.3, textAlign:"right", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{game.away}</span>
+          {game.away_logo && !isMobile && <img src={game.away_logo} alt="" style={{ width:22, height:22, objectFit:"contain", flexShrink:0 }} onError={function(e){e.target.style.display="none"}} />}
         </div>
       </div>
-      {game.prob_home && !isFinished && (
-        <div style={{ marginTop:10 }}>
-          <ProbBar home={game.prob_home} away={game.prob_away} draw={game.prob_draw} color={color} />
-        </div>
-      )}
     </div>
   );
 }
@@ -187,18 +183,18 @@ function TodayGames({ games }) {
     </div>
   );
   return (
-    <div>
+    <div style={{ width:"100%", overflowX:"hidden" }}>
       {leagues.map(function(lid){
         var lg = games.filter(function(g){ return g.league_id===lid; });
         var first = lg[0];
         return (
           <div key={lid} style={{ marginBottom:24 }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-              <div style={{ width:4, height:20, background:first.league_color||"#333", borderRadius:2 }} />
-              <span style={{ fontSize:16, fontWeight:800, color:"#111" }}>{first.league_emoji} {first.league}</span>
-              <span style={{ fontSize:11, color:"#bbb" }}>{lg.length} jogos</span>
+              <div style={{ width:4, height:20, background:first.league_color||"#333", borderRadius:2, flexShrink:0 }} />
+              <span style={{ fontSize:15, fontWeight:800, color:"#111", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{first.league_emoji} {first.league}</span>
+              <span style={{ fontSize:11, color:"#bbb", flexShrink:0 }}>{lg.length} jogos</span>
             </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
               {lg.map(function(g){ return <GameCard key={g.id} game={g} />; })}
             </div>
           </div>
@@ -433,7 +429,7 @@ function HomePage({ onArticle }) {
                 }
               </p>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:isMobile?"1fr":"1fr 320px", gap:isMobile?16:32 }}>
+            <div style={{ display:"grid", gridTemplateColumns:isMobile?"1fr":"1fr 320px", gap:isMobile?16:32, overflow:"hidden", width:"100%" }}>
               <TodayGames games={tab==="amanha" ? gamesAmanha : games} />
               <aside style={{ display:isMobile?"none":"block" }}>
                 <AdSlot h={250} label="300x250" />
