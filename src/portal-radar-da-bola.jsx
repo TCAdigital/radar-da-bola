@@ -3,6 +3,16 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 const BRAND = { red:"#e8002d", black:"#0d0d0d", white:"#ffffff" };
+
+function useIsMobile() {
+  var [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 768);
+  useEffect(function(){
+    function handleResize(){ setIsMobile(window.innerWidth < 768); }
+    window.addEventListener("resize", handleResize);
+    return function(){ window.removeEventListener("resize", handleResize); };
+  },[]);
+  return isMobile;
+}
 const META = {
   futebol:  { color:"#009c3b", light:"#e8f5ee", label:"FUTEBOL",   emoji:"⚽" },
   formula1: { color:"#e10600", light:"#fdecea", label:"FÓRMULA 1", emoji:"🏎️" },
@@ -259,6 +269,7 @@ function ArticlePage({ news, onBack, allNews }) {
 
 // ── TICKER DE MANCHETES ───────────────────────────────────────────────────────
 function NewsTicker({ news }) {
+  var isMobile = useIsMobile();
   if (!news || news.length === 0) return null;
   const items = news.slice(0, 10);
   const m = { futebol:META.futebol, formula1:META.formula1, tenis:META.tenis, basquete:META.basquete };
@@ -289,6 +300,7 @@ function NewsTicker({ news }) {
 
 // ── CONTAGEM REGRESSIVA COPA 2026 ─────────────────────────────────────────────
 function CopaCountdown() {
+  var isMobile = useIsMobile();
   var [time, setTime] = React.useState({ dias:0, horas:0, min:0, seg:0 });
   React.useEffect(function(){
     function calc(){
@@ -334,6 +346,7 @@ function CopaCountdown() {
 }
 
 function HomePage({ onArticle }) {
+  var isMobile = useIsMobile();
   var [tab, setTab]       = useState("inicio");
   var [news, setNews]     = useState([]);
   var [games, setGames]       = useState([]);
