@@ -212,7 +212,7 @@ function ArticlePage({ news, onBack, allNews }) {
   var isMobile = useIsMobile();
   useEffect(function(){ window.scrollTo(0,0); },[]);
   var m = META[news.categoria] || META.futebol;
-  var related = allNews.filter(function(n){ return n.categoria===news.categoria && n.id!==news.id; }).slice(0,3);
+  var related = allNews.filter(function(n){ return n.categoria===news.categoria && n.id!==news.id; }).slice(0, isMobile?4:3);
   return (
     <div style={{ background:"#f5f5f5", minHeight:"100vh", fontFamily:"'Arial','Helvetica',sans-serif" }}>
       <button onClick={onBack} style={{ position:"fixed", top:16, left:16, zIndex:200, background:"rgba(255,255,255,0.93)", backdropFilter:"blur(8px)", color:"#111", border:"1px solid #ddd", borderRadius:20, padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,0.1)" }}>
