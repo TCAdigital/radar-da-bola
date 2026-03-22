@@ -460,6 +460,7 @@ function HomePage({ onArticle }) {
                       {medium.map(function(n){ return <MediumCard key={n.id} news={n} onClick={onArticle} />; })}
                     </div>
                   )}
+                  {isMobile && <AdSlot h={90} label="Publicidade" />}
                   {rest.length>0 && (
                     <div style={{ background:"#fff", borderRadius:10, padding:"4px 20px", border:"1px solid #e0e0e0", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
                       {rest.map(function(n){ return <ListCard key={n.id} news={n} onClick={onArticle} />; })}
