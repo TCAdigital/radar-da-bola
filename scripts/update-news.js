@@ -470,23 +470,7 @@ async function salvarNoticias(noticias, noticiasOriginais, categoria) {
   }
 }
 
-async function limparNoticiasAntigas() {
-  // Manter 50 noticias por categoria
-  const categorias = ["futebol", "formula1", "tenis", "basquete"];
-  for (const cat of categorias) {
-    const { data } = await supabase
-      .from("noticias")
-      .select("id")
-      .eq("categoria", cat)
-      .order("created_at", { ascending: false });
-
-    if (data && data.length > 50) {
-      const ids = data.slice(50).map(n => n.id);
-      await supabase.from("noticias").delete().in("id", ids);
-      console.log("Removidas", ids.length, "noticias antigas de", cat);
-    }
-  }
-}
+// Noticias nunca sao removidas — acumulam para melhor SEO
 
 // ── MAIN ──────────────────────────────────────────────────────────────────────
 async function main() {
@@ -536,7 +520,6 @@ async function main() {
     await new Promise(r => setTimeout(r, 15000)); // Pausa para nao estourar quota Gemini
   }
 
-  await limparNoticiasAntigas();
   console.log("\n=== Concluido! ===");
 }
 
