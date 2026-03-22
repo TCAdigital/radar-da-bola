@@ -382,8 +382,8 @@ function HomePage({ onArticle }) {
 
   var filtered = tab==="inicio" ? news : (tab==="jogos"||tab==="amanha" ? [] : news.filter(function(n){ return n.categoria===tab; }));
   var hero   = filtered[0];
-  var medium = filtered.slice(1,4);
-  var rest   = filtered.slice(4);
+  var medium = filtered.slice(1, isMobile ? 5 : 4);
+  var rest   = filtered.slice(isMobile ? 5 : 4);
 
   return (
     <div style={{ background:"#f5f5f5", minHeight:"100vh", fontFamily:"'Arial','Helvetica',sans-serif" }}>
