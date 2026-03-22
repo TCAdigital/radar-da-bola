@@ -511,9 +511,11 @@ export default function IGManager() {
                       <div style={{ display:"flex",alignItems:"center",gap:8,flexShrink:0 }}>
                         <span style={{ background:st.bg,color:st.color,fontSize:10,fontWeight:600,padding:"4px 10px",borderRadius:20 }}>{st.icon} {st.label}</span>
                         {statuses[n.id]==="pending" && (
+                          <>
                           <button onClick={()=>downloadArte(n,"feed")} title="Baixar Feed" style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"5px 10px",fontSize:11,cursor:"pointer" }}>⬇ Feed</button>
                           <button onClick={()=>downloadArte(n,"stories")} title="Baixar Stories" style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"5px 10px",fontSize:11,cursor:"pointer" }}>⬇ Story</button>
                           <button onClick={()=>simulatePost(n.id)} disabled={!!posting} style={{ background:B.red,color:B.white,border:"none",borderRadius:5,padding:"5px 12px",fontSize:11,fontWeight:700,cursor:posting?"not-allowed":"pointer",opacity:posting?.5:1 }}>▶</button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -562,9 +564,9 @@ export default function IGManager() {
                         </span>
                         <button onClick={()=>{setPreviewNews(n);setView("preview");}} style={{ background:"rgba(255,255,255,0.06)",color:"#888",border:"none",borderRadius:5,padding:"6px 10px",fontSize:11,fontWeight:600,cursor:"pointer" }}>👁 Ver</button>
                         {(statuses[n.id]==="pending"||statuses[n.id]==="error") && (
-                          <button onClick={()=>downloadArte(n,"feed")} style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"7px 10px",fontSize:11,fontWeight:600,cursor:"pointer" }}>⬇ Feed</button>
+                          <><button onClick={()=>downloadArte(n,"feed")} style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"7px 10px",fontSize:11,fontWeight:600,cursor:"pointer" }}>⬇ Feed</button>
                           <button onClick={()=>downloadArte(n,"stories")} style={{ background:"#1a1a2e",color:B.white,border:"none",borderRadius:5,padding:"7px 10px",fontSize:11,fontWeight:600,cursor:"pointer" }}>⬇ Story</button>
-                          <button onClick={()=>simulatePost(n.id)} disabled={!!posting} style={{ background:`linear-gradient(135deg,${B.redDeep},${B.red})`,color:B.white,border:"none",borderRadius:5,padding:"7px 14px",fontSize:12,fontWeight:700,cursor:posting?"not-allowed":"pointer",opacity:posting?.5:1 }}>▶ Postar</button>
+                          <button onClick={()=>simulatePost(n.id)} disabled={!!posting} style={{ background:`linear-gradient(135deg,${B.redDeep},${B.red})`,color:B.white,border:"none",borderRadius:5,padding:"7px 14px",fontSize:12,fontWeight:700,cursor:posting?"not-allowed":"pointer",opacity:posting?.5:1 }}>▶ Postar</button></>
                         )}
                         {statuses[n.id]==="posted" && (
                           <div style={{ background:"rgba(0,196,79,0.1)",color:"#00c44f",borderRadius:5,padding:"7px 12px",fontSize:11,fontWeight:700 }}>✓ Publicado</div>
