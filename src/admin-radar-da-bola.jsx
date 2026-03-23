@@ -146,7 +146,7 @@ function EditNewsModal({ news, onSave, onClose }) {
   const [title,   setTitle]   = useState(news.title);
   const [summary, setSummary] = useState(news.summary);
   const [content, setContent] = useState(news.content);
-  const [img,     setImg]     = useState(news.img);
+  const [img,     setImg]     = useState(news.imagem_url || news.img);
   const [sport,   setSport]   = useState(news.sport);
   return (
     <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.35)", zIndex:300, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
@@ -175,7 +175,7 @@ function EditNewsModal({ news, onSave, onClose }) {
           </Field>
           <div style={{ display:"flex", gap:10, justifyContent:"flex-end", paddingTop:16, borderTop:`1px solid ${C.border}` }}>
             <button onClick={onClose} style={{ background:"#f5f5f5", color:"#666", border:`1px solid ${C.border}`, borderRadius:6, padding:"9px 18px", fontSize:13, cursor:"pointer" }}>Cancelar</button>
-            <button onClick={()=>onSave({title,summary,content,img,sport})} style={{ background:C.red, color:"#fff", border:"none", borderRadius:6, padding:"9px 22px", fontSize:13, fontWeight:700, cursor:"pointer" }}>✓ Salvar</button>
+            <button onClick={()=>onSave({title,summary,content,img,sport,imagem_url:img,titulo:title,subtitulo:summary,conteudo:content,categoria:sport})} style={{ background:C.red, color:"#fff", border:"none", borderRadius:6, padding:"9px 22px", fontSize:13, fontWeight:700, cursor:"pointer" }}>✓ Salvar</button>
           </div>
         </div>
       </div>
@@ -296,7 +296,7 @@ function NewsTab({ news, setNews, showToast }) {
         categoria:  f.sport || f.categoria,
       }).eq("id", id);
       if (error) throw error;
-      setNews(n=>n.map(x=>x.id===id?{...x,...f}:x));
+      setNews(n=>n.map(x=>x.id===id?{...x,...f, img:f.img||f.imagem_url, imagem_url:f.imagem_url||f.img}:x));
       setEditing(null);
       showToast("✓ Notícia atualizada!");
     } catch(e) {
