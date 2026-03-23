@@ -249,7 +249,7 @@ export default function IGManager() {
       .from("noticias")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(30)
+      .limit(200)
       .then(({ data }) => {
         if (data && data.length > 0) {
           const mapped = data.map(n => ({
