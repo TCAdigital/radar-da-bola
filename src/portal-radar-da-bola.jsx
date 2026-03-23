@@ -358,7 +358,7 @@ function HomePage({ onArticle }) {
   useEffect(function(){
     function load() {
       setLoading(true);
-      supabase.from("noticias").select("*").order("created_at",{ascending:false}).limit(20).then(function(res){
+      supabase.from("noticias").select("*").order("created_at",{ascending:false}).limit(200).then(function(res){
         setNews(res.data||[]);
         setLoading(false);
       });
@@ -547,7 +547,7 @@ export default function App() {
   var [article, setArticle] = useState(null);
   var [news, setNews]       = useState([]);
   useEffect(function(){
-    supabase.from("noticias").select("*").order("created_at",{ascending:false}).limit(20).then(function(res){
+    supabase.from("noticias").select("*").order("created_at",{ascending:false}).limit(200).then(function(res){
       setNews(res.data||[]);
     });
   },[]);
