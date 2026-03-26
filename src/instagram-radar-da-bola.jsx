@@ -15,6 +15,13 @@ const SPORTS = {
   basquete: { color:"#e65c00", label:"BASQUETE",  emoji:"🏀" },
 };
 
+const FALLBACK_IMGS = {
+  futebol:  "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1080&q=80",
+  formula1: "https://images.unsplash.com/photo-1518364538800-6bae3c2ea0f2?w=1080&q=80",
+  tenis:    "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=1080&q=80",
+  basquete: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1080&q=80",
+};
+
 const NEWS = [];
 
 const INIT_STATUS = {};
@@ -73,14 +80,19 @@ function FeedCanvas({ news, size=1 }) {
     // Foto de fundo com overlay
     if (imgRef.current && imgLoaded) {
       const img = imgRef.current;
-      const sc = Math.max(W/img.naturalWidth, H/img.naturalHeight);
-      const sw=img.naturalWidth*sc, sh=img.naturalHeight*sc;
-      ctx.drawImage(img,(W-sw)/2,(H-sh)/2,sw,sh);
-      ctx.fillStyle="rgba(0,0,0,0.55)";
+      const scW = W / img.naturalWidth;
+      const scH = H / img.naturalHeight;
+      const sc = Math.max(scW, scH);
+      const sw = img.naturalWidth * sc;
+      const sh = img.naturalHeight * sc;
+      const offsetX = (W - sw) / 2;
+      const offsetY = Math.min(0, (H - sh) / 3);
+      ctx.drawImage(img, offsetX, offsetY, sw, sh);
+      ctx.fillStyle="rgba(0,0,0,0.4)";
       ctx.fillRect(0,0,W,H);
-      const tint=ctx.createLinearGradient(0,H*0.4,0,H);
+      const tint=ctx.createLinearGradient(0,H*0.38,0,H);
       tint.addColorStop(0,"rgba(0,0,0,0)");
-      tint.addColorStop(1,"rgba(0,0,0,0.8)");
+      tint.addColorStop(1,"rgba(0,0,0,0.92)");
       ctx.fillStyle=tint; ctx.fillRect(0,0,W,H);
     }
 
@@ -136,11 +148,22 @@ function FeedCanvas({ news, size=1 }) {
 
   useEffect(() => {
     setImgLoaded(false);
-    const img=new Image(); img.crossOrigin="anonymous";
-    img.onload=()=>{ imgRef.current=img; setImgLoaded(true); };
-    img.onerror=()=>{ imgRef.current=null; draw(); };
-    img.src=news.img;
-  }, [news.img]);
+    const loadImg = (src) => {
+      const img=new Image(); img.crossOrigin="anonymous";
+      img.onload=()=>{ imgRef.current=img; setImgLoaded(true); };
+      img.onerror=()=>{
+        // Tenta fallback do Unsplash
+        const fallback = FALLBACK_IMGS[news.sport] || FALLBACK_IMGS.futebol;
+        if (src !== fallback) {
+          loadImg(fallback);
+        } else {
+          imgRef.current=null; draw();
+        }
+      };
+      img.src=src;
+    };
+    loadImg(news.img || news.imagem_url || FALLBACK_IMGS[news.sport] || FALLBACK_IMGS.futebol);
+  }, [news.img, news.imagem_url]);
 
   useEffect(() => { draw(); }, [draw]);
 
@@ -170,14 +193,19 @@ function StoryCanvas({ news, size=1 }) {
     // Foto fundo
     if (imgRef.current && imgLoaded) {
       const img=imgRef.current;
-      const sc=Math.max(W/img.naturalWidth,H/img.naturalHeight);
-      const sw=img.naturalWidth*sc,sh=img.naturalHeight*sc;
-      ctx.drawImage(img,(W-sw)/2,(H-sh)/2,sw,sh);
-      ctx.fillStyle="rgba(0,0,0,0.58)";
+      const scW = W / img.naturalWidth;
+      const scH = H / img.naturalHeight;
+      const sc = Math.max(scW, scH);
+      const sw = img.naturalWidth * sc;
+      const sh = img.naturalHeight * sc;
+      const offsetX = (W - sw) / 2;
+      const offsetY = Math.min(0, (H - sh) / 3);
+      ctx.drawImage(img, offsetX, offsetY, sw, sh);
+      ctx.fillStyle="rgba(0,0,0,0.45)";
       ctx.fillRect(0,0,W,H);
       const tint=ctx.createLinearGradient(0,H*0.35,0,H);
       tint.addColorStop(0,"rgba(0,0,0,0)");
-      tint.addColorStop(1,"rgba(0,0,0,0.85)");
+      tint.addColorStop(1,"rgba(0,0,0,0.9)");
       ctx.fillStyle=tint; ctx.fillRect(0,0,W,H);
     }
 
@@ -220,11 +248,21 @@ function StoryCanvas({ news, size=1 }) {
 
   useEffect(() => {
     setImgLoaded(false);
-    const img=new Image(); img.crossOrigin="anonymous";
-    img.onload=()=>{ imgRef.current=img; setImgLoaded(true); };
-    img.onerror=()=>{ imgRef.current=null; draw(); };
-    img.src=news.img;
-  }, [news.img]);
+    const loadImg = (src) => {
+      const img=new Image(); img.crossOrigin="anonymous";
+      img.onload=()=>{ imgRef.current=img; setImgLoaded(true); };
+      img.onerror=()=>{
+        const fallback = FALLBACK_IMGS[news.sport] || FALLBACK_IMGS.futebol;
+        if (src !== fallback) {
+          loadImg(fallback);
+        } else {
+          imgRef.current=null; draw();
+        }
+      };
+      img.src=src;
+    };
+    loadImg(news.img || news.imagem_url || FALLBACK_IMGS[news.sport] || FALLBACK_IMGS.futebol);
+  }, [news.img, news.imagem_url]);
 
   useEffect(() => { draw(); }, [draw]);
 
