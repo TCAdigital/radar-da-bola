@@ -1,9 +1,9 @@
 name: Update Basquete
 on:
-  schedule:
-    - cron: '30 9 * * *'
-    - cron: '30 15 * * *'
-    - cron: '30 21 * * *'
+  # schedule:
+  #   - cron: '30 9 * * *'
+  #   - cron: '30 15 * * *'
+  #   - cron: '30 21 * * *'
   workflow_dispatch:
 jobs:
   update:
